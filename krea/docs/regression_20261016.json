@@ -1,0 +1,54 @@
+{
+  "bf16": {
+    "shape": [
+      160,
+      384,
+      640,
+      3
+    ],
+    "pixel_identical": true,
+    "max_abs_error": 0,
+    "raw_rgb_psnr_db": null,
+    "compute_seconds": 20.21105680987239,
+    "steady_generated_fps": 8.221990817819055,
+    "delivered_fps": 7.9164588722468805,
+    "load_seconds": 125.3751202635467,
+    "environment": {
+      "torch": "2.9.1+cu128",
+      "cuda_runtime": "12.8",
+      "python": "3.12.15 (main, Oct  3 2026, 01:03:07) [Clang 22.1.3 ]",
+      "devices": [
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB"
+      ]
+    }
+  },
+  "bf16_blocks": {
+    "shape": [
+      160,
+      384,
+      640,
+      3
+    ],
+    "pixel_identical": true,
+    "max_abs_error": 0,
+    "raw_rgb_psnr_db": null,
+    "compute_seconds": 18.675524417310953,
+    "steady_generated_fps": 8.920712908376036,
+    "delivered_fps": 8.567363166074779,
+    "load_seconds": 124.73179859668016,
+    "environment": {
+      "torch": "2.9.1+cu128",
+      "cuda_runtime": "12.8",
+      "python": "3.12.15 (main, Oct  3 2026, 01:03:07) [Clang 22.1.3 ]",
+      "devices": [
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB",
+        "NVIDIA A800-SXM4-80GB"
+      ]
+    }
+  }
+}

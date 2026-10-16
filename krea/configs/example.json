@@ -1,0 +1,9 @@
+{
+  "model_dir": "../models",
+  "variant": "bf16",
+  "width": 640,
+  "height": 384,
+  "fps": 16,
+  "seed": 43,
+  "warmup_frames": 33
+}

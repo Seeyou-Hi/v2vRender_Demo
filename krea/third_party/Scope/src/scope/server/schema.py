@@ -1,0 +1,984 @@
+"""Pydantic schemas for FastAPI application."""
+
+from enum import Enum
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+# Import enums from torch-free module to avoid loading torch at CLI startup
+from scope.core.pipelines.enums import Quantization, VaeType
+
+from .graph_schema import GraphConfig
+
+# Default values for pipeline load params (duplicated from pipeline configs to avoid
+# importing torch-dependent modules). These should match the defaults in:
+# - StreamDiffusionV2Config: height=512, width=512, base_seed=42
+# - LongLiveConfig: height=320, width=576, base_seed=42
+# - KreaRealtimeVideoConfig: height=320, width=576, base_seed=42
+_STREAMDIFFUSIONV2_HEIGHT = 512
+_STREAMDIFFUSIONV2_WIDTH = 512
+_LONGLIVE_HEIGHT = 320
+_LONGLIVE_WIDTH = 576
+_KREA_HEIGHT = 320
+_KREA_WIDTH = 576
+_DEFAULT_SEED = 42
+_DEFAULT_VAE_TYPE = VaeType.WAN
+
+
+class HealthResponse(BaseModel):
+    """Health check response schema."""
+
+    status: str = Field(default="healthy")
+    timestamp: str
+    server_start_time: float = Field(
+        ..., description="Unix timestamp when the server started"
+    )
+    version: str = Field(..., description="Server version")
+    git_commit: str = Field(..., description="Git commit hash")
+
+
+class PromptItem(BaseModel):
+    """Individual prompt with weight for blending."""
+
+    text: str = Field(..., description="Prompt text")
+    weight: float = Field(
+        default=1.0, ge=0.0, description="Weight for blending (must be non-negative)"
+    )
+
+
+class PromptTransition(BaseModel):
+    """Configuration for transitioning between prompt blends over time.
+
+    This controls temporal interpolation - how smoothly prompts transition
+    across multiple generation frames, distinct from spatial blending of
+    multiple prompts within a single frame.
+    """
+
+    target_prompts: list[PromptItem] = Field(
+        ..., description="Target prompt blend to interpolate to"
+    )
+    num_steps: int = Field(
+        default=4,
+        ge=0,
+        description="Number of generation calls to transition over (0 = instant, 4 is default)",
+    )
+    temporal_interpolation_method: Literal["linear", "slerp"] = Field(
+        default="linear",
+        description="Method for temporal interpolation between blends across frames",
+    )
+
+
+class Parameters(BaseModel):
+    """Parameters for WebRTC session."""
+
+    model_config = ConfigDict(extra="allow")
+
+    input_mode: Literal["text", "video"] | None = Field(
+        default=None,
+        description="Input mode for the stream: 'text' for text-to-video, 'video' for video-to-video",
+    )
+    prompts: list[PromptItem] | None = Field(
+        default=None,
+        description="List of prompts with weights for spatial blending within a single frame",
+    )
+    prompt_interpolation_method: Literal["linear", "slerp"] = Field(
+        default="linear",
+        description="Spatial interpolation method for blending multiple prompts: linear (weighted average) or slerp (spherical)",
+    )
+    transition: PromptTransition | None = Field(
+        default=None,
+        description="Optional transition to smoothly interpolate from current prompts to target prompts over multiple frames. "
+        "When provided, the transition.target_prompts will become the new prompts after the transition completes, "
+        "and this field takes precedence over the 'prompts' field for initiating the transition.",
+    )
+    noise_scale: float | None = Field(
+        default=None, description="Noise scale (0.0-1.0)", ge=0.0, le=1.0
+    )
+    noise_controller: bool | None = Field(
+        default=None,
+        description="Enable automatic noise scale adjustment based on motion detection",
+    )
+    denoising_step_list: list[int] | None = Field(
+        default=None, description="Denoising step list"
+    )
+    manage_cache: bool | None = Field(
+        default=None,
+        description="Enable automatic cache management for parameter updates",
+    )
+    reset_cache: bool | None = Field(default=None, description="Trigger a cache reset")
+    kv_cache_attention_bias: float | None = Field(
+        default=None,
+        description="Controls how much to rely on past frames in the cache during generation. A lower value can help mitigate error accumulation and prevent repetitive motion. Uses log scale: 1.0 = full reliance on past frames, smaller values = less reliance on past frames. Typical values: 0.3-0.7 for moderate effect, 0.1-0.2 for strong effect.",
+        ge=0.01,
+        le=1.0,
+    )
+    lora_scales: list["LoRAScaleUpdate"] | None = Field(
+        default=None,
+        description="Update scales for loaded LoRA adapters. Each entry updates a specific adapter by path.",
+    )
+    output_sinks: "dict[str, OutputSinkConfig] | None" = Field(
+        default=None,
+        description="Output sinks config keyed by type (e.g., 'spout', 'ndi')",
+    )
+    vace_enabled: bool | None = Field(
+        default=None,
+        description="Enable VACE (Video All-In-One Creation and Editing) for reference image conditioning and structural guidance. Must be enabled at pipeline load time for VACE to be available.",
+    )
+    vace_ref_images: list[str] | None = Field(
+        default=None,
+        description="List of reference image file paths for VACE conditioning. Images should be located in the assets directory (at the same level as the models directory).",
+    )
+    vace_use_input_video: bool | None = Field(
+        default=None,
+        description="When enabled in Video input mode, the input video is used for VACE conditioning. When disabled, the input video is used for latent initialization instead, allowing reference images to be used while in Video input mode.",
+    )
+    vace_context_scale: float = Field(
+        default=1.0,
+        description="Scaling factor for VACE hint injection. Higher values make reference images more influential.",
+        ge=0.0,
+        le=2.0,
+    )
+    pipeline_ids: list[str] | None = Field(
+        default=None,
+        description="List of pipeline IDs to execute in a chain. If not provided, uses the currently loaded pipeline.",
+    )
+    graph: GraphConfig | None = Field(
+        default=None,
+        description="Graph configuration (nodes + edges) for graph execution mode. "
+        "When provided, pipelines are wired according to the graph topology instead of a linear chain.",
+    )
+    first_frame_image: str | None = Field(
+        default=None,
+        description="Path to first frame reference image for extension mode. When provided alone, enables 'firstframe' mode (reference at start, generate continuation). When provided with last_frame_image, enables 'firstlastframe' mode (references at both ends). Images should be located in the assets directory.",
+    )
+    last_frame_image: str | None = Field(
+        default=None,
+        description="Path to last frame reference image for extension mode. When provided alone, enables 'lastframe' mode (generate lead-up, reference at end). When provided with first_frame_image, enables 'firstlastframe' mode (references at both ends). Images should be located in the assets directory.",
+    )
+    images: list[str] | None = Field(
+        default=None,
+        description="List of reference image paths for non-VACE visual conditioning",
+    )
+    recording: bool | None = Field(
+        default=None,
+        description="Enable recording for this session. When true, the backend records the stream. ",
+    )
+    node_id: str | None = Field(
+        default=None,
+        description="Target graph node ID for per-node parameter updates. "
+        "When set, parameters are routed to the specific pipeline node. "
+        "When None, parameters are broadcast to all processors (backward compat).",
+    )
+
+
+class OutputSinkConfig(BaseModel):
+    """Configuration for a single output sink (Spout, NDI, etc.)."""
+
+    enabled: bool = Field(default=False, description="Enable this output sink")
+    name: str = Field(default="", description="Sender name visible to receivers")
+
+
+class WebRTCOfferRequest(BaseModel):
+    """WebRTC offer request schema."""
+
+    sdp: str = Field(..., description="Session Description Protocol offer")
+    type: str = Field(..., description="SDP type (should be 'offer')")
+    initialParameters: Parameters | None = Field(
+        default=None, description="Initial parameters for the session"
+    )
+    user_id: str | None = Field(
+        default=None, description="User ID for event tracking in cloud mode"
+    )
+    connection_id: str | None = Field(
+        default=None,
+        description="Connection ID from fal.ai WebSocket for event correlation",
+    )
+    connection_info: dict[str, Any] | None = Field(
+        default=None,
+        description="Additional connection metadata (e.g., gpu_type, region) from cloud infrastructure",
+    )
+
+
+class WebRTCOfferResponse(BaseModel):
+    """WebRTC offer response schema."""
+
+    sdp: str = Field(..., description="Session Description Protocol answer")
+    type: str = Field(..., description="SDP type (should be 'answer')")
+    sessionId: str = Field(..., description="Unique session ID for this connection")
+
+
+class IceServerConfig(BaseModel):
+    """ICE server configuration for WebRTC."""
+
+    urls: str | list[str] = Field(..., description="STUN/TURN server URL(s)")
+    username: str | None = Field(default=None, description="Username for TURN server")
+    credential: str | None = Field(
+        default=None, description="Credential for TURN server"
+    )
+
+
+class IceServersResponse(BaseModel):
+    """Response containing ICE server configuration."""
+
+    iceServers: list[IceServerConfig] = Field(
+        ..., description="List of ICE servers for WebRTC connection"
+    )
+
+
+class IceCandidateInit(BaseModel):
+    """Individual ICE candidate initialization data."""
+
+    candidate: str = Field(..., description="ICE candidate string")
+    sdpMid: str | None = Field(default=None, description="Media stream ID")
+    sdpMLineIndex: int | None = Field(
+        default=None, description="Media line index in SDP"
+    )
+
+
+class IceCandidateRequest(BaseModel):
+    """Request to add ICE candidate(s) to an existing session."""
+
+    candidates: list[IceCandidateInit] = Field(
+        ..., description="List of ICE candidates to add"
+    )
+
+
+class ErrorResponse(BaseModel):
+    """Error response schema."""
+
+    error: str = Field(..., description="Error message")
+    detail: str = Field(None, description="Additional error details")
+
+
+class IntegrationAvailability(BaseModel):
+    """Availability + install guidance for an optional integration (SDK/library)."""
+
+    available: bool = Field(
+        default=False, description="Whether the integration is ready to use"
+    )
+    reason: str | None = Field(
+        default=None,
+        description="Short reason shown when unavailable (e.g. 'Spout is Windows-only')",
+    )
+    install_hint: str | None = Field(
+        default=None,
+        description="User-facing hint for how to make this integration available",
+    )
+
+
+class HardwareInfoResponse(BaseModel):
+    """Hardware information response schema."""
+
+    vram_gb: float | None = Field(
+        default=None, description="Total VRAM in GB (None if CUDA not available)"
+    )
+    spout: IntegrationAvailability = Field(
+        default_factory=IntegrationAvailability,
+        description="Spout video I/O (Windows only)",
+    )
+    ndi: IntegrationAvailability = Field(
+        default_factory=IntegrationAvailability,
+        description="NDI video I/O (all platforms, requires NDI SDK)",
+    )
+    syphon: IntegrationAvailability = Field(
+        default_factory=IntegrationAvailability,
+        description="Syphon video I/O (macOS only)",
+    )
+
+
+class PipelineStatusEnum(str, Enum):
+    """Pipeline status enumeration."""
+
+    NOT_LOADED = "not_loaded"
+    LOADING = "loading"
+    LOADED = "loaded"
+    ERROR = "error"
+
+
+class LoRAMergeMode(str, Enum):
+    """LoRA merge mode enumeration."""
+
+    RUNTIME_PEFT = "runtime_peft"
+    PERMANENT_MERGE = "permanent_merge"
+
+
+class LoRAConfig(BaseModel):
+    """Configuration for a LoRA (Low-Rank Adaptation) adapter."""
+
+    path: str = Field(
+        ...,
+        description=(
+            "Local path to LoRA weights file (.safetensors, .bin, .pt). "
+            "Typically under models/lora/."
+        ),
+    )
+    scale: float = Field(
+        default=1.0,
+        ge=-10.0,
+        le=10.0,
+        description=(
+            "Adapter strength/weight (-10.0 to 10.0, 0.0 = disabled, 1.0 = full strength)."
+        ),
+    )
+    merge_mode: LoRAMergeMode | None = Field(
+        default=None,
+        description=(
+            "Optional merge strategy for this specific LoRA. "
+            "If not specified, uses the pipeline's default lora_merge_mode. "
+            "Permanent merge offers maximum FPS but no runtime updates; "
+            "runtime_peft offers instant updates at reduced FPS."
+        ),
+    )
+
+
+class LoRAScaleUpdate(BaseModel):
+    """Update scale for a loaded LoRA adapter."""
+
+    path: str = Field(
+        ..., description="Path of the LoRA to update (must match loaded path)"
+    )
+    scale: float = Field(
+        ...,
+        ge=-10.0,
+        le=10.0,
+        description="New adapter strength/weight (-10.0 to 10.0, 0.0 = disabled, 1.0 = full strength).",
+    )
+
+
+class PipelineLoadParams(BaseModel):
+    """Base class for pipeline load parameters."""
+
+    pass
+
+
+class LoRAEnabledLoadParams(PipelineLoadParams):
+    """Base class for load params that support LoRA."""
+
+    loras: list[LoRAConfig] | None = Field(
+        default=None, description="Optional list of LoRA adapter configurations."
+    )
+    lora_merge_mode: LoRAMergeMode = Field(
+        default=LoRAMergeMode.PERMANENT_MERGE,
+        description=(
+            "LoRA merge strategy. Permanent merge offers maximum FPS but no runtime updates; "
+            "runtime_peft offers instant updates at reduced FPS."
+        ),
+    )
+
+
+class StreamDiffusionV2LoadParams(LoRAEnabledLoadParams):
+    """Load parameters for StreamDiffusion V2 pipeline.
+
+    Defaults match StreamDiffusionV2Config values.
+    """
+
+    height: int = Field(
+        default=_STREAMDIFFUSIONV2_HEIGHT,
+        description="Target video height",
+        ge=64,
+        le=2048,
+    )
+    width: int = Field(
+        default=_STREAMDIFFUSIONV2_WIDTH,
+        description="Target video width",
+        ge=64,
+        le=2048,
+    )
+    base_seed: int = Field(
+        default=_DEFAULT_SEED,
+        description="Base random seed for reproducible generation",
+        ge=0,
+    )
+    quantization: Quantization | None = Field(
+        default=None,
+        description="Quantization method to use for diffusion model. If None, no quantization is applied.",
+    )
+    vace_enabled: bool = Field(
+        default=True,
+        description="Enable VACE (Video All-In-One Creation and Editing) support for reference image conditioning and structural guidance. When enabled, input video in Video input mode can be used for VACE conditioning. When disabled, video uses faster regular encoding for latent initialization.",
+    )
+    vae_type: VaeType = Field(
+        default=_DEFAULT_VAE_TYPE,
+        description="VAE type to use. 'wan' is the full VAE, 'lightvae' is 75% pruned (faster but lower quality), 'tae' is a tiny autoencoder for fast preview quality, 'lighttae' is LightTAE with WanVAE normalization.",
+    )
+
+
+class PassthroughLoadParams(PipelineLoadParams):
+    """Load parameters for Passthrough pipeline."""
+
+    pass
+
+
+class LongLiveLoadParams(LoRAEnabledLoadParams):
+    """Load parameters for LongLive pipeline.
+
+    Defaults match LongLiveConfig values.
+    """
+
+    height: int = Field(
+        default=_LONGLIVE_HEIGHT,
+        description="Target video height",
+        ge=16,
+        le=2048,
+    )
+    width: int = Field(
+        default=_LONGLIVE_WIDTH,
+        description="Target video width",
+        ge=16,
+        le=2048,
+    )
+    base_seed: int = Field(
+        default=_DEFAULT_SEED,
+        description="Base random seed for reproducible generation",
+        ge=0,
+    )
+    quantization: Quantization | None = Field(
+        default=None,
+        description="Quantization method to use for diffusion model. If None, no quantization is applied.",
+    )
+    vace_enabled: bool = Field(
+        default=True,
+        description="Enable VACE (Video All-In-One Creation and Editing) support for reference image conditioning and structural guidance. When enabled, input video in Video input mode can be used for VACE conditioning. When disabled, video uses faster regular encoding for latent initialization.",
+    )
+    vae_type: VaeType = Field(
+        default=_DEFAULT_VAE_TYPE,
+        description="VAE type to use. 'wan' is the full VAE, 'lightvae' is 75% pruned (faster but lower quality), 'tae' is a tiny autoencoder for fast preview quality, 'lighttae' is LightTAE with WanVAE normalization.",
+    )
+
+
+class KreaRealtimeVideoLoadParams(LoRAEnabledLoadParams):
+    """Load parameters for KreaRealtimeVideo pipeline.
+
+    Defaults match KreaRealtimeVideoConfig values.
+    """
+
+    height: int = Field(
+        default=_KREA_HEIGHT,
+        description="Target video height",
+        ge=64,
+        le=2048,
+    )
+    width: int = Field(
+        default=_KREA_WIDTH,
+        description="Target video width",
+        ge=64,
+        le=2048,
+    )
+    base_seed: int = Field(
+        default=_DEFAULT_SEED,
+        description="Base random seed for reproducible generation",
+        ge=0,
+    )
+    quantization: Quantization | None = Field(
+        default=Quantization.FP8_E4M3FN,
+        description="Quantization method to use for diffusion model. If None, no quantization is applied.",
+    )
+    vace_enabled: bool = Field(
+        default=True,
+        description="Enable VACE (Video All-In-One Creation and Editing) support for reference image conditioning and structural guidance. When enabled, input video in Video input mode can be used for VACE conditioning. When disabled, video uses faster regular encoding for latent initialization.",
+    )
+    vae_type: VaeType = Field(
+        default=_DEFAULT_VAE_TYPE,
+        description="VAE type to use. 'wan' is the full VAE, 'lightvae' is 75% pruned (faster but lower quality), 'tae' is a tiny autoencoder for fast preview quality, 'lighttae' is LightTAE with WanVAE normalization.",
+    )
+
+
+class PipelineLoadItem(BaseModel):
+    """A single pipeline with its load parameters."""
+
+    node_id: str = Field(..., description="Graph node ID for this pipeline instance")
+    pipeline_id: str = Field(..., description="Pipeline ID to load")
+    load_params: dict[str, Any] | None = Field(
+        default=None,
+        description="Load parameters for this specific pipeline.",
+    )
+
+
+class PipelineLoadRequest(BaseModel):
+    """Pipeline load request schema.
+
+    Supports two formats:
+    - ``pipelines``: list of (pipeline_id, load_params) pairs, allowing
+      per-pipeline params and duplicate pipeline_ids.
+    - ``pipeline_ids`` + ``load_params``: legacy shorthand where the same
+      load_params apply to every pipeline.
+    """
+
+    pipelines: list[PipelineLoadItem] | None = Field(
+        default=None,
+        description="List of pipelines with per-pipeline load parameters. "
+        "Supports loading the same pipeline_id multiple times with different params.",
+    )
+    pipeline_ids: list[str] | None = Field(
+        default=None,
+        description="List of pipeline IDs to load (legacy). "
+        "Use 'pipelines' for per-pipeline load parameters.",
+    )
+    load_params: dict[str, Any] | None = Field(
+        default=None,
+        description="Load parameters applied to every pipeline (legacy). "
+        "Ignored when 'pipelines' is provided.",
+    )
+    connection_id: str | None = Field(
+        default=None,
+        description="Connection ID from fal.ai WebSocket for event correlation",
+    )
+    connection_info: dict[str, Any] | None = Field(
+        default=None,
+        description="Connection info (gpu_type, fal_host) for event correlation",
+    )
+    user_id: str | None = Field(
+        default=None,
+        description="User ID for event correlation and tracking",
+    )
+
+
+class PipelineStatusResponse(BaseModel):
+    """Pipeline status response schema."""
+
+    status: PipelineStatusEnum = Field(..., description="Current pipeline status")
+    pipeline_id: str | None = Field(default=None, description="ID of loaded pipeline")
+    load_params: dict | None = Field(
+        default=None, description="Load parameters used when loading the pipeline"
+    )
+    loaded_lora_adapters: list[dict] | None = Field(
+        default=None,
+        description=(
+            "Information about currently loaded LoRA adapters (path and scale). "
+            "Used by the frontend to decide which adapters can be updated at runtime."
+        ),
+    )
+    error: str | None = Field(
+        default=None, description="Error message if status is error"
+    )
+    loading_stage: str | None = Field(
+        default=None,
+        description="Current loading substage (e.g., 'Loading diffusion model...')",
+    )
+    produces_video: bool = Field(
+        default=True,
+        description="Whether the loaded pipeline chain produces video output",
+    )
+    produces_audio: bool = Field(
+        default=False,
+        description="Whether the loaded pipeline chain produces audio output",
+    )
+
+
+class PipelineSchemasResponse(BaseModel):
+    """Response containing schemas for all available pipelines.
+
+    Each pipeline entry contains the output of get_schema_with_metadata()
+    plus additional mode information.
+    """
+
+    pipelines: dict = Field(..., description="Pipeline schemas keyed by pipeline ID")
+
+
+class NodeDefinitionsResponse(BaseModel):
+    """Response containing definitions for all registered node types.
+
+    Each entry is the ``model_dump()`` of a :class:`NodeDefinition`
+    (pipelines carry rich ``pipeline_meta``; plain nodes leave it null).
+    """
+
+    nodes: list[dict[str, Any]] = Field(
+        ..., description="Flat list of node definitions"
+    )
+
+
+class AssetFileInfo(BaseModel):
+    """Metadata for an available asset file on disk."""
+
+    name: str
+    path: str
+    size_mb: float
+    folder: str | None = None
+    type: str  # "image" or "video"
+    created_at: float  # Unix timestamp
+
+
+class AssetsResponse(BaseModel):
+    """Response containing all discoverable asset files."""
+
+    assets: list[AssetFileInfo]
+
+
+# Plugin-related schemas
+
+
+class PluginSource(str, Enum):
+    """Source of plugin installation."""
+
+    PYPI = "pypi"
+    GIT = "git"
+    LOCAL = "local"
+
+
+class PluginPipelineInfo(BaseModel):
+    """Pipeline metadata within a plugin."""
+
+    pipeline_id: str = Field(..., description="Unique pipeline identifier")
+    pipeline_name: str = Field(..., description="Human-readable pipeline name")
+
+
+class PluginInfo(BaseModel):
+    """Complete plugin information."""
+
+    name: str = Field(..., description="Python package name")
+    version: str | None = Field(default=None, description="Package version")
+    author: str | None = Field(default=None, description="Package author")
+    description: str | None = Field(default=None, description="Package description")
+    source: PluginSource = Field(..., description="Installation source")
+    editable: bool = Field(
+        default=False, description="Whether installed in editable mode"
+    )
+    editable_path: str | None = Field(
+        default=None, description="Path if installed in editable mode"
+    )
+    pipelines: list[PluginPipelineInfo] = Field(
+        default_factory=list, description="Pipelines provided by this plugin"
+    )
+    latest_version: str | None = Field(
+        default=None,
+        description="Latest available version (null for local/editable plugins)",
+    )
+    update_available: bool | None = Field(
+        default=None,
+        description="Whether an update is available (null for local/editable plugins)",
+    )
+    package_spec: str | None = Field(
+        default=None,
+        description="Package specifier for upgrades (git URL for git packages, name for PyPI)",
+    )
+    bundled: bool = Field(
+        default=False,
+        description="Whether this plugin is bundled and cannot be uninstalled",
+    )
+    kind: str | None = Field(
+        default=None,
+        description=(
+            "Plugin kind from the package's ``__scope_kind__`` attribute. "
+            '``"source"`` means the plugin must run on the local machine even in '
+            "cloud mode; ``None`` (default) is treated as a regular pipeline plugin."
+        ),
+    )
+    origin: Literal["local", "cloud"] | None = Field(
+        default=None,
+        description=(
+            "Where this plugin record came from. Set by the server when merging "
+            "local source-kind plugins with cloud plugins in cloud mode; ``None`` "
+            "in single-instance mode."
+        ),
+    )
+
+
+class FailedPluginInfoSchema(BaseModel):
+    """Information about a plugin entry point that failed to load."""
+
+    package_name: str = Field(..., description="Package name of the failed plugin")
+    entry_point_name: str = Field(
+        ..., description="Entry point name that failed to load"
+    )
+    error_type: str = Field(
+        ..., description="Exception type (e.g. ModuleNotFoundError)"
+    )
+    error_message: str = Field(..., description="Error message from the exception")
+
+
+class PluginListResponse(BaseModel):
+    """Response containing list of all installed plugins."""
+
+    plugins: list[PluginInfo] = Field(..., description="List of installed plugins")
+    total: int = Field(..., description="Total number of plugins")
+    failed_plugins: list[FailedPluginInfoSchema] = Field(
+        default_factory=list,
+        description="Plugins that failed to load at startup",
+    )
+
+
+class PluginInstallRequest(BaseModel):
+    """Request to install a plugin."""
+
+    package: str = Field(
+        ..., description="Package specifier (PyPI name, git URL, or local path)"
+    )
+    editable: bool = Field(default=False, description="Install in editable mode")
+    upgrade: bool = Field(
+        default=False, description="Upgrade if already installed from different source"
+    )
+    force: bool = Field(default=False, description="Skip dependency validation")
+    pre: bool = Field(
+        default=False, description="Include pre-release and development versions"
+    )
+
+
+class PluginInstallResponse(BaseModel):
+    """Response after installing a plugin."""
+
+    success: bool = Field(..., description="Whether installation succeeded")
+    message: str = Field(..., description="Status message")
+    plugin: PluginInfo | None = Field(
+        default=None, description="Installed plugin info (if successful)"
+    )
+
+
+class PluginUninstallResponse(BaseModel):
+    """Response after uninstalling a plugin."""
+
+    success: bool = Field(..., description="Whether uninstallation succeeded")
+    message: str = Field(..., description="Status message")
+    unloaded_pipelines: list[str] = Field(
+        default_factory=list, description="Pipeline IDs that were unloaded"
+    )
+
+
+class PluginReloadRequest(BaseModel):
+    """Request to reload an editable plugin."""
+
+    force: bool = Field(
+        default=False,
+        description="Force reload even if pipelines are loaded (will unload them)",
+    )
+
+
+class PluginReloadResponse(BaseModel):
+    """Response after reloading a plugin."""
+
+    success: bool = Field(..., description="Whether reload succeeded")
+    message: str = Field(..., description="Status message")
+    reloaded_pipelines: list[str] = Field(
+        default_factory=list, description="Pipeline IDs that were reloaded"
+    )
+    added_pipelines: list[str] = Field(
+        default_factory=list, description="New pipeline IDs added after reload"
+    )
+    removed_pipelines: list[str] = Field(
+        default_factory=list, description="Pipeline IDs removed after reload"
+    )
+
+
+class PluginUpdateInfo(BaseModel):
+    """Update information for a single plugin."""
+
+    name: str = Field(..., description="Plugin package name")
+    installed_version: str = Field(..., description="Currently installed version")
+    latest_version: str | None = Field(
+        default=None, description="Latest available version (null for local plugins)"
+    )
+    update_available: bool | None = Field(
+        default=None, description="Whether update is available (null for local plugins)"
+    )
+    source: PluginSource = Field(..., description="Installation source")
+
+
+class PluginUpdatesResponse(BaseModel):
+    """Response containing update information for all plugins."""
+
+    updates: list[PluginUpdateInfo] = Field(
+        ..., description="Update info for each plugin"
+    )
+
+
+# =============================================================================
+# Cloud Integration Schemas
+# =============================================================================
+
+
+class CloudConnectRequest(BaseModel):
+    """Request to connect to cloud processing.
+
+    Credentials can be provided in the request body or via CLI args/env vars.
+    If not provided here, the server will use --cloud-app-id and --cloud-api-key
+    (or SCOPE_CLOUD_APP_ID and SCOPE_CLOUD_API_KEY environment variables).
+    """
+
+    app_id: str | None = Field(
+        default=None,
+        description="The cloud app ID (e.g., 'daydream/scope-livepeer--prod/ws'). Optional if set via CLI.",
+    )
+    api_key: str | None = Field(
+        default=None,
+        description="The cloud API key for authentication. Optional if set via CLI.",
+    )
+    user_id: str | None = Field(
+        default=None,
+        description="The user ID for logging purposes.",
+    )
+
+
+class CloudConnectionStats(BaseModel):
+    """Statistics for cloud connection."""
+
+    uptime_seconds: float | None = Field(
+        default=None,
+        description="How long the connection has been active",
+    )
+    webrtc_offers_sent: int = Field(
+        default=0,
+        description="Number of WebRTC offers sent (signaling)",
+    )
+    webrtc_offers_successful: int = Field(
+        default=0,
+        description="Number of successful WebRTC offers",
+    )
+    webrtc_ice_candidates_sent: int = Field(
+        default=0,
+        description="Number of ICE candidates sent",
+    )
+    api_requests_sent: int = Field(
+        default=0,
+        description="Number of API requests sent through cloud",
+    )
+    api_requests_successful: int = Field(
+        default=0,
+        description="Number of successful API requests",
+    )
+    frames_sent_to_cloud: int = Field(
+        default=0,
+        description="Number of video frames sent to cloud for processing",
+    )
+    frames_received_from_cloud: int = Field(
+        default=0,
+        description="Number of processed video frames received from cloud",
+    )
+
+
+class CloudStatusResponse(BaseModel):
+    """Response containing cloud connection status."""
+
+    connected: bool = Field(
+        ...,
+        description="Whether connected to cloud (WebSocket)",
+    )
+    connecting: bool = Field(
+        default=False,
+        description="Whether a background connection attempt is in progress",
+    )
+    error: str | None = Field(
+        default=None,
+        description="Error message if the last connection attempt failed",
+    )
+    connect_stage: str | None = Field(
+        default=None,
+        description="Current substage during connection (e.g., 'Connecting to cloud...')",
+    )
+    webrtc_connected: bool = Field(
+        default=False,
+        description="Whether WebRTC media connection to cloud is active",
+    )
+    app_id: str | None = Field(
+        default=None,
+        description="The cloud app ID if connected",
+    )
+    connection_id: str | None = Field(
+        default=None,
+        description="Unique ID for the current WebSocket connection (for log correlation)",
+    )
+    credentials_configured: bool = Field(
+        default=False,
+        description="Whether cloud credentials are configured via CLI args or env vars",
+    )
+    stats: CloudConnectionStats | None = Field(
+        default=None,
+        description="Connection statistics (only included when connected)",
+    )
+    last_close_code: int | None = Field(
+        default=None,
+        description="WebSocket close code from the last disconnection",
+    )
+    last_close_reason: str | None = Field(
+        default=None,
+        description="WebSocket close reason from the last disconnection",
+    )
+
+
+# API Key management schemas
+
+
+class ApiKeyInfo(BaseModel):
+    """Status info for a single API key service."""
+
+    id: str
+    name: str
+    description: str
+    is_set: bool
+    source: str | None  # "env_var", "stored", or None
+    env_var: str | None  # e.g. "HF_TOKEN"
+    key_url: str | None  # URL where user can create a key
+
+
+class ApiKeysListResponse(BaseModel):
+    keys: list[ApiKeyInfo]
+
+
+class ApiKeySetRequest(BaseModel):
+    value: str = Field(..., min_length=1)
+
+
+class ApiKeySetResponse(BaseModel):
+    success: bool
+    message: str
+
+
+class ApiKeyDeleteResponse(BaseModel):
+    success: bool
+    message: str
+
+
+# =============================================================================
+# Tempo Sync Schemas
+# =============================================================================
+
+
+class TempoEnableRequest(BaseModel):
+    """Request to enable tempo synchronization."""
+
+    source: Literal["link", "midi_clock"] = Field(..., description="Tempo source type")
+    midi_device: str | None = Field(
+        default=None,
+        description="MIDI input device name (required when source is midi_clock)",
+    )
+    bpm: float = Field(
+        default=120.0,
+        ge=20.0,
+        le=300.0,
+        description="Initial BPM (used for Ableton Link)",
+    )
+    beats_per_bar: int = Field(
+        default=4, ge=1, le=16, description="Beats per bar (time signature numerator)"
+    )
+
+
+class TempoStatusResponse(BaseModel):
+    """Current tempo sync status."""
+
+    enabled: bool = Field(..., description="Whether tempo sync is active")
+    source: dict | None = Field(
+        default=None, description="Active source info (type, num_peers, etc.)"
+    )
+    beats_per_bar: int = Field(default=4, description="Beats per bar")
+    beat_state: dict | None = Field(
+        default=None,
+        description="Current beat state (bpm, beat_phase, bar_position, beat_count, is_playing, source)",
+    )
+
+
+class TempoSetTempoRequest(BaseModel):
+    """Request to change the session tempo."""
+
+    bpm: float = Field(
+        ...,
+        ge=20.0,
+        le=300.0,
+        description="Target BPM",
+    )
+
+
+class TempoSourcesResponse(BaseModel):
+    """Available tempo sources and their capabilities."""
+
+    sources: dict = Field(
+        ...,
+        description="Available sources keyed by type (link, midi_clock) with availability and device info",
+    )

@@ -1,0 +1,36 @@
+[
+  {
+    "repo": "daydreamlive/krea-realtime-video",
+    "revision": "8c0d1571e6ed60992c15663bf2854ad23f96e029",
+    "file": "config.json",
+    "local_sha256": "95eeff7402d6ea3437d6a0993a716e4807f8539c03991ff8e8c52f8ef07462da"
+  },
+  {
+    "repo": "daydreamlive/krea-realtime-video",
+    "revision": "8c0d1571e6ed60992c15663bf2854ad23f96e029",
+    "file": "krea-realtime-video-14b.safetensors",
+    "local_sha256": "792f6042a645e227f5d71851845dc4098a7338fec9ec55279f88ebbc3527eec7"
+  },
+  {
+    "repo": "daydreamlive/Wan2.1-T2V-14B",
+    "revision": "0850912848a4e04d302c82f1e9cecda80bba43df",
+    "file": "config.json",
+    "local_sha256": "7c9d7887442cb46716380bdf4426933d7cf88cbb31abcb434ea219322f5580ad"
+  },
+  {
+    "repo": "daydreamlive/Autoencoders",
+    "revision": "15b3be9cd154e089c560c094386659e027ab8a86",
+    "file": "taew2_1.pth",
+    "local_sha256": "f986092baa4a124035dcf44ef59cd30e0bef91b2aa4d6a6e8e152e55e82ca30c"
+  },
+  {
+    "repo": "Wan-AI/Wan2.1-VACE-14B",
+    "revision": "539c162b1387eac9dc4c20bd3f74671309e76a4c",
+    "purpose": "vace_source"
+  },
+  {
+    "repo": "Wan-AI/Wan2.1-VACE-1.3B",
+    "revision": "574e6a744642ce3bee319afc31496b88bde8aac4",
+    "purpose": "text_encoder"
+  }
+]

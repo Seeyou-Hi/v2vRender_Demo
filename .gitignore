@@ -28,3 +28,13 @@ __pycache__/
 configs/local*.json
 runs/
 data/
+
+# These are vendored Python source directories, not local inputs/outputs/weights.
+!krea/third_party/Scope/src/scope/core/inputs/
+!krea/third_party/Scope/src/scope/core/inputs/**
+!krea/third_party/Scope/src/scope/core/outputs/
+!krea/third_party/Scope/src/scope/core/outputs/**
+!krea/third_party/Scope/src/scope/core/pipelines/wan2_1/vace/models/
+!krea/third_party/Scope/src/scope/core/pipelines/wan2_1/vace/models/**
+__pycache__/
+*.py[cod]
