@@ -1,0 +1,15 @@
+{
+  "repo": "alibaba-pai/MiniMax-H3-Acc-LoRAs",
+  "revision": "335001fb9e5455d68a0caa18ec2e319072150328",
+  "size": 1372450680,
+  "sha256": "111c82e669f6e20e628228172edf39395f1a9fc3ad049793895e542c0f55b18c",
+  "filename": "MiniMax-H3-Ref2VA-Acc-8Step.safetensors",
+  "base_model": "MiniMaxAI/MiniMax-H3 / Ref2VA; use converted H3-Acc-local plus resolved text_encoder/tokenizer/processor",
+  "runtime_files": {
+    "convert_minimax_h3_to_diffusers.py": "86f61f62934d1eccf2a76ec57b6d072e2c23767c6e49d96aa1cf24d40422b42c",
+    "inference_minimax_h3.py": "a77bc604b26a711efab66e804b517957bb10a00d1cb1e2a4a556ab4854c0dffd",
+    "minimax_h3_pdd.py": "7a4c04bd364f84c1e6dfecf816bdd991eb7092e3c69693fea64b8e6db778e4c9",
+    "minimax_h3_ref2va_pipeline.py": "7d9fcd0f9bb102b49c871f84939729e358573e0934e0b39eaef7f9c3d652e9d4",
+    "resolution_util.py": "91ed96b6745d68c41848ea436704fb160ef33198aaacc524f059e563538c6314"
+  }
+}

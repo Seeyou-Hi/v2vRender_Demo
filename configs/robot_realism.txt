@@ -1,0 +1,19 @@
+subject_definitions:
+<Video 1> shows two industrial robot arms with black grippers working over a tabletop, with a red-and-gold can on the left, a red bottle on the right, and blue and orange pads.
+
+summary:
+[video editing] Transform the simulated scene in <Video 1> into convincing live-action footage of a real robotics laboratory. Keep the source camera viewpoint and framing, the robot movements, and the same objects. Rebuild the visual appearance with substantially more realistic materials, lighting, surface detail, and photographic clarity.
+
+retention_analysis:
+<Video 1>: partially_preserved - retain the camera, the two robot arms and their actions, the tabletop and the existing objects and their motion. Materials, illumination, shading, reflections, textures and edge appearance are freely redesigned for realism.
+
+detailed_description:
+A high-quality documentary camera records a real robot manipulation experiment from the same viewpoint as the reference video, with the same framing throughout and no added zoom or camera move. The robots follow the reference joint and gripper movements, handling the same objects in the same sequence.
+Replace the synthetic render appearance with physically convincing surfaces: finely textured painted robot housings, brushed and machined metal joints, dark rubber gripper pads, subtle fasteners, realistic metallic and polymer responses, a tangible matte laboratory worktop, a glossy red bottle, and a realistically printed red-and-gold can. Retain recognizable object colors while allowing rich, natural variations in reflectance and surface finish.
+Create beautiful believable laboratory lighting: broad soft daylight from one side, gentle overhead fill, rich contact shadows, natural ambient occlusion, controlled specular highlights, realistic reflections, and coherent indirect illumination. Reveal fine surface texture and crisp natural edges without artificial outlines or excessive sharpening. Keep the full working area in focus with photographic contrast and stable exposure. The result should look visibly like a real filmed scene with dimensional materials and convincing depth, rather than a clean computer simulation. Background surfaces can gain realistic laboratory detail while leaving the work area unobstructed. Maintain stable materials, illumination and object identity over time.
+
+overall_soundscape:
+Subtle robot servomotors and quiet laboratory ambience, no speech.
+
+non_diegetic_music:
+None.
