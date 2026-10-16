@@ -2,7 +2,7 @@
 
 这是与仓库根目录 PAI H3 八步后端分开的可选模型。完整运行源码已包含；新服务器只需准备环境、模型权重和输入。
 
-## 两个优化版本
+## 两个优化版本（单卡、双卡和四卡）
 
 | `--variant` | 实现 | 四卡历史测试稳态生成速度 |
 |---|---|---|
@@ -13,11 +13,30 @@
 
 历史测试：4×A800 80GB、640×384、四步 `[1000,750,500,250]`、16 FPS 条件序列、TAE。首块输出 9 帧，后续每块 12 帧；仅末块补齐输入，输出裁去补帧。参考图仅首块输入。32.19 秒连续输入分别约 8.21 / 8.89 FPS。速度排除模型加载、编译热身和最终编码；不宣称达到 16 FPS 实时。详见 `docs/validation.md`。
 
+### 单卡优化
+
+设置 `KREA_GPUS=1` 使用完整模型和完整 KV cache，不做跨卡通信。单卡 `bf16` 对应 336 个子模块编译，`bf16_blocks` 在此基础上编译 48 个 Transformer 块；保留原有融合 QKV。两者都使用原 BF16 权重。
+
+单张 A800 80GB、相同 10 秒 Depth＋参考图输入，完整热身后：原单卡 3.47 FPS，子模块编译 3.73 FPS，块编译 **3.93 FPS**（提升 13.2%，160 帧计算耗时 42.04 秒，实际交付吞吐 3.81 FPS）。峰值 PyTorch allocated 显存约 49.52 GiB；测试分配 160 GB 主机内存。速度不含加载、热身和编码，尚未达到实时。单卡新优化仅验证了 10 秒序列。详见 [单卡验证记录](docs/single_gpu_validation.md)。
+
+```bash
+# 从 krea/ 目录执行；输出目录必须尚不存在。
+KREA_GPUS=1 bash render.sh --config configs/example.json \
+  --control /srv/input/depth.mp4 --control-kind depth \
+  --reference /srv/input/reference.png \
+  --variant bf16_blocks --output outputs/single_blocks_case1
+
+# 单卡上传/返回接口
+python scripts/server.py --config configs/example.json --gpus 1 --port 8001
+```
+
+环境、模型下载和输入格式与多卡共用。默认热身为 33 帧；复现上面的测速时将配置 `warmup_frames` 设为 160。首次块编译较慢，短热身不保证覆盖所有 KV cache 形状。
+
 ## 1. 环境
 
 基线是 Linux x86_64、Python **3.12**、PyTorch **2.9.1+cu128**、CUDA Runtime **12.8**、FlashAttention **2.8.3**、cuDNN **9.15.1.9**。与 PAI 环境不同，必须使用独立虚拟环境。
 
-系统需安装 Python 3.12/venv、FFmpeg（含 ffprobe）、C/C++ 编译器及兼容 CUDA 12.8 的 NVIDIA 驱动。测试使用四张 A800 80GB；源码也允许两卡，但本次两个优化版本的速度/画质结论来自四卡。**模型初始化时每张卡会先加载完整模型再切分，不能按最终分片显存推断小显存卡能运行。** 建议至少 256 GB 主机内存，现有回归分配 384 GB。
+系统需安装 Python 3.12/venv、FFmpeg（含 ffprobe）、C/C++ 编译器及兼容 CUDA 12.8 的 NVIDIA 驱动。测试使用四张 A800 80GB；源码也允许两卡；上表多卡速度/画质结论来自四卡，单卡结果见上一节。**模型初始化时每张卡会先加载完整模型再切分，不能按最终分片显存推断小显存卡能运行。** 建议至少 256 GB 主机内存，现有回归分配 384 GB。
 
 在仓库根目录执行：
 
@@ -82,7 +101,7 @@ bash render.sh --config configs/example.json \
 
 输出为 `output.mp4`（H.264/yuv420p/faststart，无音轨）、`profile.json`、`status.json`、环境和数值审计记录。输出目录必须不存在，防止覆盖实验。`--write-chunks` 会在生成过程中输出独立 chunk MP4；这些片段可提前取走，拼接时应保持顺序。`--save-array` 可用于像素回归，不建议普通任务启用。
 
-默认分配四卡，`KREA_GPUS=2 bash render.sh ...` 可切换双卡。请在服务器分配给自己的 GPU 内启动；C3 必须继续使用 Slurm 与隔离启动器，不在登录节点运行。新服务器不依赖 C3 的调度脚本。
+默认分配四卡，`KREA_GPUS=2 bash render.sh ...` 可切换双卡，`KREA_GPUS=1` 切换单卡。请在服务器分配给自己的 GPU 内启动；C3 必须继续使用 Slurm 与隔离启动器，不在登录节点运行。新服务器不依赖 C3 的调度脚本。
 
 ## 4. 前端上传/返回接口
 

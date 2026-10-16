@@ -5,9 +5,9 @@
 | 后端 | 代码入口 | 输入 | 运行方式 |
 |---|---|---|---|
 | PAI H3 八步 | `scripts/render.py`、`runtime_deps/` | RGB 视频＋提示词 | 双卡离线渲染；已有实现保留 |
-| Krea＋VACE | `krea/scripts/render.py`、`krea/third_party/Scope/` | Depth / Canny 条件＋可选对齐参考图＋提示词 | 因果分块推理，注意力/KV/FFN 多卡并行；新增上传/下载 HTTP 适配层 |
+| Krea＋VACE | `krea/scripts/render.py`、`krea/third_party/Scope/` | Depth / Canny 条件＋可选对齐参考图＋提示词 | 因果分块推理，支持单卡编译优化及注意力/KV/FFN 多卡并行；新增上传/下载 HTTP 适配层 |
 
-Krea 内有两个优化选项：`bf16`（BF16 通信）和 `bf16_blocks`（BF16 通信＋Transformer 块编译）。它们共享同一套模型权重。
+Krea 内有两个优化选项：`bf16`（BF16 通信）和 `bf16_blocks`（BF16 通信＋Transformer 块编译）。它们共享同一套模型权重。单卡设置 `KREA_GPUS=1`，两个选项分别使用子模块编译和子模块＋块编译，不进行跨卡通信；单张 A800 80GB 已测最快约 3.93 FPS。
 
 - **Krea 安装、模型下载、启动和接口：见 [krea/README.md](krea/README.md)。**
 - **PAI H3 原有安装与启动说明：见 [docs/pai_h3.md](docs/pai_h3.md)。** PAI 的 `scripts/`、`configs/`、`runtime_deps/` 和根目录 `requirements.txt` 保持原路径；PAI 文档中的命令均从仓库根目录执行。

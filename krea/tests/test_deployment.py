@@ -54,10 +54,10 @@ class DeploymentTests(unittest.TestCase):
             cfg=root/'config.json';cfg.write_text(json.dumps({'model_dir':str(models)}))
             fake=root/'fake/torch/distributed';fake.mkdir(parents=True)
             (fake.parent/'__init__.py').touch();(fake/'__init__.py').touch()
-            (fake/'run.py').write_text("import sys,time,json\nfrom pathlib import Path\np=Path(sys.argv[sys.argv.index('--output')+1]);p.mkdir()\n(p/'chunks').mkdir()\n(p/'chunks/000000.mp4').write_bytes(b'chunk-fixture')\ntime.sleep(0.1)\n(p/'output.mp4').write_bytes(b'video-fixture')\n(p/'status.json').write_text(json.dumps({'status':'completed'}))\n")
+            (fake/'run.py').write_text("import sys,time,json\nassert '--nproc_per_node=1' in sys.argv,sys.argv\nfrom pathlib import Path\np=Path(sys.argv[sys.argv.index('--output')+1]);p.mkdir()\n(p/'chunks').mkdir()\n(p/'chunks/000000.mp4').write_bytes(b'chunk-fixture')\ntime.sleep(0.1)\n(p/'output.mp4').write_bytes(b'video-fixture')\n(p/'status.json').write_text(json.dumps({'status':'completed'}))\n")
             with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
             env=dict(os.environ,PYTHONPATH=str(root/'fake'))
-            proc=subprocess.Popen([sys.executable,str(ROOT/'scripts/server.py'),'--config',str(cfg),'--port',str(port),'--storage',str(root/'jobs')],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+            proc=subprocess.Popen([sys.executable,str(ROOT/'scripts/server.py'),'--gpus','1','--config',str(cfg),'--port',str(port),'--storage',str(root/'jobs')],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             base=f'http://127.0.0.1:{port}'
             def request(path,data=None):
                 with urllib.request.urlopen(urllib.request.Request(base+path,data=data),timeout=3) as response:return response.read()

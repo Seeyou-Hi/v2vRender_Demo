@@ -18,7 +18,7 @@ def main():
     p.add_argument('--config',required=True)
     p.add_argument('--host',default='127.0.0.1')
     p.add_argument('--port',type=int,default=8001)
-    p.add_argument('--gpus',type=int,choices=[2,4],default=4)
+    p.add_argument('--gpus',type=int,choices=[1,2,4],default=4)
     p.add_argument('--storage',type=Path,default=ROOT/'outputs/api')
     p.add_argument('--max-upload-mb',type=int,default=512)
     args=p.parse_args();config=Path(args.config).resolve();load_config(config)

@@ -1,0 +1,143 @@
+{
+  "eager": {
+    "steady_generated_fps": 3.4716799508675003,
+    "delivered_fps": 3.3663330767128565,
+    "compute_seconds": 47.52946198545396,
+    "load_seconds": 117.10974763892591,
+    "peak_allocated_gib": 49.52256774902344,
+    "first_chunk_ready_seconds": 3.097395410761237,
+    "pixel_identical_to_preserved_single": true
+  },
+  "fused": {
+    "steady_generated_fps": 3.7273285814484285,
+    "delivered_fps": 3.616151930258022,
+    "compute_seconds": 44.24592856876552,
+    "load_seconds": 117.38870142400265,
+    "peak_allocated_gib": 49.523529052734375,
+    "first_chunk_ready_seconds": 2.895560350269079,
+    "quality": {
+      "overall_psnr_db": 43.131021746431834,
+      "motion_activity": [
+        {
+          "region": "left_arm_region",
+          "zero_lag_correlation": 0.9996276443948237,
+          "best_lag": {
+            "lag_frames": 0,
+            "correlation": 0.9996276443948237
+          },
+          "extra_activity_frames": []
+        },
+        {
+          "region": "right_arm_region",
+          "zero_lag_correlation": 0.9999442141967207,
+          "best_lag": {
+            "lag_frames": 0,
+            "correlation": 0.9999442141967207
+          },
+          "extra_activity_frames": []
+        }
+      ],
+      "thirds": [
+        {
+          "third": 1,
+          "mean_mse": 1.216924497374782,
+          "psnr_db": 47.27816727083778
+        },
+        {
+          "third": 2,
+          "mean_mse": 3.3253724575042725,
+          "psnr_db": 42.912400654604326
+        },
+        {
+          "third": 3,
+          "mean_mse": 4.980761312088877,
+          "psnr_db": 41.157846308854715
+        }
+      ]
+    }
+  },
+  "blocks": {
+    "steady_generated_fps": 3.928281870340816,
+    "delivered_fps": 3.806342603040839,
+    "compute_seconds": 42.03510211408138,
+    "load_seconds": 116.76808612979949,
+    "peak_allocated_gib": 49.52380704879761,
+    "first_chunk_ready_seconds": 2.826878158375621,
+    "quality": {
+      "overall_psnr_db": 43.55246581085864,
+      "motion_activity": [
+        {
+          "region": "left_arm_region",
+          "zero_lag_correlation": 0.9998011054897754,
+          "best_lag": {
+            "lag_frames": 0,
+            "correlation": 0.9998011054897754
+          },
+          "extra_activity_frames": []
+        },
+        {
+          "region": "right_arm_region",
+          "zero_lag_correlation": 0.999944016055052,
+          "best_lag": {
+            "lag_frames": 0,
+            "correlation": 0.999944016055052
+          },
+          "extra_activity_frames": []
+        }
+      ],
+      "thirds": [
+        {
+          "third": 1,
+          "mean_mse": 0.9843717852124462,
+          "psnr_db": 48.19921203726368
+        },
+        {
+          "third": 2,
+          "mean_mse": 2.885488195239373,
+          "psnr_db": 43.52861058952699
+        },
+        {
+          "third": 3,
+          "mean_mse": 4.774758033032687,
+          "psnr_db": 41.34128992818578
+        }
+      ]
+    },
+    "speedup_percent": 13.152189312820163
+  },
+  "fastest": "blocks",
+  "test_contract": {
+    "gpu": "1x A800 SXM4 80GB",
+    "resolution": [
+      640,
+      384
+    ],
+    "denoising_steps": [
+      1000,
+      750,
+      500,
+      250
+    ],
+    "conditioning": "video1 first10s depth + same reference + same prompt",
+    "seed": 43,
+    "delivered_frames": 160,
+    "output_fps": 16,
+    "timing": "Full160-frame warmup before measurement; model compute excludes load/warmup/final encoding and frontend transport",
+    "gpu_job": "13974",
+    "cpu_job": "13975",
+    "no_quantization": true,
+    "no_interpolation": true,
+    "no_weight_changes": true,
+    "no_cross_gpu_communication": true
+  },
+  "limitations": "Tested only the same 10-second case; motion-activity metrics compare renderer outputs, not physical joint/contact ground truth. No long-clip single-GPU claim. Existing four-GPU/API deployment unchanged.",
+  "validation": {
+    "status": "completed",
+    "gpu_job": "13974",
+    "cpu_job": "13975",
+    "encoding": "H264/yuv420p/faststart; frame count and full decode passed",
+    "visual_review": "Six sampled frames at 0,24,56,88,120,159 inspected across input/eager/fused/blocks; no obvious added camera/composition or arm-position change relative to eager",
+    "motion": "Both arm activity proxies have best lag0 and no extra spikes for both compiled variants",
+    "limitations": "10-second comparison only; not ground-truth robot pose/contact validation"
+  }
+}

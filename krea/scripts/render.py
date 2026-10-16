@@ -1,4 +1,4 @@
-"""Krea/VACE backend, launched with torchrun (2 or 4 GPUs)."""
+"""Krea/VACE backend, launched with torchrun (1, 2 or 4 GPUs)."""
 import argparse
 import json
 import os
@@ -36,20 +36,23 @@ def main():
     import torch._dynamo
     from omegaconf import OmegaConf
     from media import read_control,encode_video
+    world=int(os.environ.get('WORLD_SIZE','1'))
     if os.environ.get('SLURM_JOB_ID'):
         # C3 isolation verifier is optional elsewhere, mandatory under C3 launcher.
         if os.environ.get('KREA_C3_ISOLATION')=='1':
-            from gpu_slurm_krea_isolated import validate_worker
+            if world == 1:
+                from gpu_slurm_isolated import validate_worker
+            else:
+                from gpu_slurm_krea_isolated import validate_worker
             validate_worker()
-    world=int(os.environ.get('WORLD_SIZE','1'))
-    if world not in (2,4): raise ValueError('Launch using torchrun --nproc_per_node=2 or 4')
-    torch.cuda.set_device(int(os.environ['LOCAL_RANK']))
-    dist.init_process_group('nccl')
-    rank=dist.get_rank()
+    if world not in (1,2,4): raise ValueError('Launch using torchrun --nproc_per_node=1, 2 or 4')
+    torch.cuda.set_device(int(os.environ.get('LOCAL_RANK','0')))
+    if world > 1: dist.init_process_group('nccl')
+    rank=dist.get_rank() if world > 1 else 0
     outdir=Path(args.output).resolve()
     # The barrier propagates directory readiness. Rank 0 refuses any existing run.
     if rank==0: outdir.mkdir(parents=True,exist_ok=False)
-    dist.barrier()
+    if world > 1: dist.barrier()
     def save(name,data):
         if rank==0:
             p=outdir/name;t=p.with_suffix(p.suffix+'.tmp')
@@ -82,16 +85,22 @@ def main():
             pipe=KreaRealtimeVideoPipeline(OmegaConf.create(modelargs),device=torch.device('cuda'),dtype=torch.bfloat16,compile=False)
         finally: torch.nn.Module.load_state_dict=original_load
         assert audits and pipe.vace_enabled
-        from attention_tp import apply_attention_parallel,inspect_cache
-        from krea_ffn_parallel import apply_ffn_parallel
-        from opt_variants import apply_modes,compile_blocks
-        from fuse_parallel import apply_fused_parallel
-        report={'base_loading':audits,'attention':apply_attention_parallel(pipe)}
         model=pipe.components.generator.model
-        report['ffn']=apply_ffn_parallel(model)
-        report['variant']=apply_modes(model,cfg['variant'])
-        report['submodule_compile']=apply_fused_parallel(model)
-        if cfg['variant']=='bf16_blocks': report['block_compile']=compile_blocks(model)
+        report={'base_loading':audits}
+        if world == 1:
+            from single_compile import apply_single_compile,inspect_cache
+            variant='blocks' if cfg['variant']=='bf16_blocks' else 'fused'
+            report['single_compile']=apply_single_compile(model,variant)
+        else:
+            from attention_tp import apply_attention_parallel,inspect_cache
+            from krea_ffn_parallel import apply_ffn_parallel
+            from opt_variants import apply_modes,compile_blocks
+            from fuse_parallel import apply_fused_parallel
+            report['attention']=apply_attention_parallel(pipe)
+            report['ffn']=apply_ffn_parallel(model)
+            report['variant']=apply_modes(model,cfg['variant'])
+            report['submodule_compile']=apply_fused_parallel(model)
+            if cfg['variant']=='bf16_blocks': report['block_compile']=compile_blocks(model)
         save('audits.json',report)
         torch._dynamo.reset()
         torch.cuda.synchronize();load_seconds=time.perf_counter()-start
@@ -134,10 +143,10 @@ def main():
             steady=sum(r['compute_seconds'] for r in rows[1:])
             save('profile.json',dict(variant=cfg['variant'],world_size=world,load_seconds=load_seconds,compute_seconds=compute,render_and_encode_seconds=time.perf_counter()-wall,delivered_frames=len(pixels),delivered_fps=len(pixels)/compute,steady_generated_fps=sum(r['native_generated_frames'] for r in rows[1:])/steady if steady else None,peak_allocated_gib=torch.cuda.max_memory_allocated()/2**30,chunks=rows))
             save('validation.json',validation);save('status.json',dict(status='completed',output='output.mp4'))
-        dist.barrier()
+        if world > 1: dist.barrier()
     except Exception:
         save('status.json',dict(status='failed',error=traceback.format_exc()));raise
     finally:
-        dist.destroy_process_group()
+        if dist.is_initialized(): dist.destroy_process_group()
 
 if __name__=='__main__': main()
