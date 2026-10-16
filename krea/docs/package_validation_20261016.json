@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-16",
+  "backend": "Krea 14B + VACE",
+  "frontend_source": "C3 /home/test01/dulingyi/robotarm after latency fixes",
+  "pai_code_removed": true,
+  "frontend_stream_tests": 24,
+  "backend_cpu_tests": 16,
+  "simulation_tests": "contact geometry, oriented grasp, centering and Rapier parity passed",
+  "launcher_smoke": "passed with fixture resident; gzip request and JPEG response through Node proxy; cleanup passed",
+  "gpu_reinference": false,
+  "existing_gpu_service_untouched": true,
+  "full_real_browser_capture": "Prior 151 software WebGL capture did not complete; no new-server GPU/browser acceptance claimed",
+  "frontend_files": 150
+}

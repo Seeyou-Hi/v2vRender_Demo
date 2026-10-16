@@ -1,0 +1,38 @@
+{
+  "source": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0",
+  "revision": "3dc3b798668feb99ac61cc9086d84cbcc3d79186",
+  "archive": "background_texture.zip",
+  "files": [
+    {
+      "path": "background_texture/seen/61.png",
+      "local": "61.png",
+      "sha256": "e8bb3f3d5aa8fcc0be208d550b0292209a92f16dbb0994783e66252a4e6df0c5",
+      "bytes": 923874
+    }
+  ],
+  "code_source": "https://github.com/RoboTwin-Platform/RoboTwin/blob/ea8b21121ebb3cd201ff5b3fe361944ac94eda3f/envs/utils/create_actor.py",
+  "code_revision": "ea8b21121ebb3cd201ff5b3fe361944ac94eda3f",
+  "function": "create_table",
+  "license": "MIT (RoboTwin code and dataset declaration)",
+  "integration": "Official parameterized table, not an imported/scanned mesh. Footprint adapted to existing dual-arm workspace; official 0.74m height, 0.05m thickness, 0.1m leg spacing.",
+  "web_texture": {
+    "path": "tabletop-61.jpg",
+    "source_size": [
+      768,
+      768
+    ],
+    "output_size": [
+      768,
+      768
+    ],
+    "sha256": "a0cd1f3ea9c53dd408ef81bd25ef273ba1ced7c7a9eecbbd647d9ee23bcfc3e4"
+  },
+  "app_dimensions_scene": {
+    "length": 6.4,
+    "width": 4.6,
+    "height": 2.072,
+    "thickness": 0.14,
+    "top_y": -0.01,
+    "units_per_meter": 2.8
+  }
+}

@@ -13,7 +13,7 @@ import time
 from urllib.parse import urlsplit,parse_qs
 from config import ROOT,load_config
 from prompt_policy import POLICY,compose_prompt
-from stream_input import StreamInbox,InboxError,FRAME_BYTES
+from stream_input import StreamInbox,InboxError,FRAME_BYTES,decode_frame_body
 
 ID=re.compile(r'^[0-9a-f]{32}$')
 
@@ -42,7 +42,7 @@ def main():
         try:
             if (directory/'incoming/cancel').exists():
                 update(job,status='failed',error='Stream cancelled before launch');return
-            update(job,status='running')
+            update(job,status='running',started_at=time.time())
             policy=compose_prompt(request.get('prompt',''))
             (directory/'prompt_policy.json').write_text(json.dumps(policy,indent=2))
             prompt=directory/'prompt.txt';prompt.write_text(policy['effective_prompt'])
@@ -82,13 +82,17 @@ def main():
                 if frame_route or stream_route:
                     match=frame_route or stream_route;job=match[1]
                     if job not in streams:return self.reply(404,{'error':'Unknown stream'})
+                    upload_start=time.monotonic()
                     body=self.rfile.read(length)
                     if len(body)!=length:raise ValueError('Truncated input')
                     with lock:state=dict(jobs[job])
                     if state['status'] in ('failed','completed'):
                         return self.reply(409,{'error':'Session no longer accepts input'})
                     try:
-                        if frame_route:result=streams[job].accept(int(match[2]),body)
+                        if frame_route:
+                            body=decode_frame_body(body,self.headers.get('Content-Encoding',''),12*streams[job].frame_bytes)
+                            result=streams[job].accept(int(match[2]),body)
+                            result.update(last_upload=dict(sequence=int(match[2]),wire_bytes=length,decoded_bytes=len(body),receive_and_publish_seconds=time.monotonic()-upload_start,received_at=time.time()))
                         elif match[2]=='finish':result=streams[job].finish()
                         else:streams[job].cancel();result={'cancelled':True}
                     except InboxError as exc:return self.reply(exc.status,{'error':str(exc)})
@@ -129,9 +133,12 @@ def main():
                     if mode not in ('video','frames') or fmt not in ('png','jpeg'):raise ValueError('Invalid output_mode or frame_format')
                     if type(mp4) is not bool:raise ValueError('save_mp4 must be boolean')
                     if mode=='video' and not mp4:raise ValueError('video mode requires save_mp4=true')
-                    job=uuid.uuid4().hex;(storage/job).mkdir()
-                    streams[job]=StreamInbox(storage/job/'incoming',input_format=input_format)
-                    with lock:jobs[job]=dict(id=job,status='queued',backend='krea',mode='stream',input_format=input_format,input_fps=fps,fps=fps,output_mode=mode,frame_format=fmt,save_mp4=mp4,variant=request.get('variant','bf16'),received_frames=0)
+                    with lock:
+                        active=next((v for v in jobs.values() if v['status'] in ('queued','running')),None)
+                        if active:return self.reply(409,{'error':f"后端已有未结束会话 {active['id']}，请先结束或取消该会话",'active_session':active['id']})
+                        job=uuid.uuid4().hex;(storage/job).mkdir()
+                        streams[job]=StreamInbox(storage/job/'incoming',input_format=input_format)
+                        jobs[job]=dict(id=job,status='queued',backend='krea',mode='stream',created_at=time.time(),input_format=input_format,input_fps=fps,fps=fps,output_mode=mode,frame_format=fmt,save_mp4=mp4,variant=request.get('variant','bf16'),received_frames=0)
                     update(job);executor.submit(run,job,dict(request,stream=True))
                     return self.reply(202,{'id':job,'status_url':f'/streams/{job}','first_frames':9,'chunk_frames':12,'fps':fps,'input_fps':fps,'max_frames':4800,'input_format':input_format,'queue_capacity':4,'output_mode':mode,'frame_format':fmt,'save_mp4':mp4,'frames_url':f'/streams/{job}/frames'})
                 for key in ('control','reference'):
@@ -148,7 +155,8 @@ def main():
         def do_GET(self):
             if self.path=='/prompt-policy':return self.reply(200,POLICY)
             if self.path=='/health':
-                health={'backend':'krea','variants':['bf16','bf16_blocks'],'gpus':args.gpus,'stream_input':True,'frame_output':True,'first_frames':9,'chunk_frames':12,'fps':16,'supported_input_fps':[5,16],'supported_input_formats':['rgb24','gray8']}
+                health={'backend':'krea','variants':['bf16','bf16_blocks'],'gpus':args.gpus,'stream_input':True,'frame_output':True,'first_frames':9,'chunk_frames':12,'fps':16,'supported_input_fps':[5,16],'supported_input_formats':['rgb24','gray8'],'supported_input_encodings':['identity','gzip']}
+                with lock:health['active_sessions']=[dict(id=v['id'],status=v['status'],received_frames=v.get('received_frames',0)) for v in jobs.values() if v['status'] in ('queued','running')]
                 if args.resident_dir:
                     path=args.resident_dir/'status.json'
                     health['resident']=json.loads(path.read_text()) if path.exists() else {'status':'starting'}

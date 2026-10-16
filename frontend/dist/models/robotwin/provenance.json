@@ -1,0 +1,111 @@
+{
+  "source": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0",
+  "revision": "3dc3b798668feb99ac61cc9086d84cbcc3d79186",
+  "archiveETag": "669b41daf8f1c178441232c45534c84f57ea2426067902e9b44b9445b1fb3fda",
+  "datasetLicense": "MIT",
+  "files": [
+    {
+      "path": "001_bottle/visual/base0.glb",
+      "sha256": "32310f63a7de183e4c665c24681b7e1407b408241035a4d36c378507c1fd8373",
+      "bytes": 2375936
+    },
+    {
+      "path": "001_bottle/visual/base1.glb",
+      "sha256": "c2789af766eda7f25c3fb9b40e52bafa89fd22630b4babb9c62ebe835f1a7da8",
+      "bytes": 2465184
+    },
+    {
+      "path": "035_apple/visual/base0.glb",
+      "sha256": "80dcf0a725dd720073862af880e8830a52355b73050d5d6573712b41c17dcb8f",
+      "bytes": 1671820
+    },
+    {
+      "path": "035_apple/visual/base1.glb",
+      "sha256": "ceb5a216e1743cac51126c0747b9d475b4c00820af400ddb55b3b39f24b1a04a",
+      "bytes": 1676024
+    },
+    {
+      "path": "071_can/visual/base0.glb",
+      "sha256": "b88e8c97cbd09cd54b486dfe13fefbb253cab39afe005d1b6b14293b8ccf44d2",
+      "bytes": 8508888
+    },
+    {
+      "path": "071_can/visual/base1.glb",
+      "sha256": "ff5e1460f084d72f2a25d4f98d41a644cb63565f2a34b64b544bee315df6f49d",
+      "bytes": 9465600
+    },
+    {
+      "path": "001_bottle/model_data0.json",
+      "sha256": "2f05daec3b7d8c054b4ad714a6c4511c42b247ab5ef21e53c9770a23d08a04bf",
+      "bytes": 7702
+    },
+    {
+      "path": "001_bottle/model_data1.json",
+      "sha256": "da2b2bd9a9b7ff69b803da6492a3dd351af98e08c4d6f56a80cff0a4533cce3e",
+      "bytes": 7692
+    },
+    {
+      "path": "035_apple/model_data0.json",
+      "sha256": "9faad9786bdddb91482158e995f08dd7d4124aae1e55f607aedab6664bde1674",
+      "bytes": 3231
+    },
+    {
+      "path": "035_apple/model_data1.json",
+      "sha256": "7c635052a46e6d2f5d6d03cc8e7b3b2acedfd193df77df74f1c0130b42126374",
+      "bytes": 3213
+    },
+    {
+      "path": "071_can/model_data0.json",
+      "sha256": "78eb137b42da2d6fa0b9208717964838e01cf6c65c5c6b14ad7c988d6ff2acfb",
+      "bytes": 10297
+    },
+    {
+      "path": "071_can/model_data1.json",
+      "sha256": "59e048001cf71074931603dc6651eb01ba75d9e9bee17235f64c9c9364fc4c0a",
+      "bytes": 10299
+    },
+    {
+      "path": "README.md",
+      "sha256": "919124ff2884d34620960d759e3a1aca795fc7ff794f39bcdd8a3e9a349f1d23",
+      "bytes": 148
+    }
+  ],
+  "webTransform": {
+    "textureMaxDimension": 1024,
+    "textureFormat": "JPEG",
+    "quality": 88,
+    "geometry": "unchanged"
+  },
+  "webFiles": [
+    {
+      "path": "001_bottle/visual/base0-web.glb",
+      "bytes": 727840,
+      "sha256": "e42207bcb44f204a9b1cb38046d24c533caa8677df28bf55e6830bea3083c956"
+    },
+    {
+      "path": "001_bottle/visual/base1-web.glb",
+      "bytes": 729192,
+      "sha256": "2113f2d8c9a4f293e6b416be6692691b9d91a6c101bf18123e62b7277377976d"
+    },
+    {
+      "path": "035_apple/visual/base0-web.glb",
+      "bytes": 1671820,
+      "sha256": "80dcf0a725dd720073862af880e8830a52355b73050d5d6573712b41c17dcb8f"
+    },
+    {
+      "path": "035_apple/visual/base1-web.glb",
+      "bytes": 1673636,
+      "sha256": "0e7a8e15e910988b384e3cd04901f639496350337a162c04ed0a41a7faae03ce"
+    },
+    {
+      "path": "071_can/visual/base0-web.glb",
+      "bytes": 1521380,
+      "sha256": "9bb4a040d7d4428876f330f94d60819fe89820600a14ff245386f790bd8c4091"
+    },
+    {
+      "path": "071_can/visual/base1-web.glb",
+      "bytes": 1398212,
+      "sha256": "419272faa317e01fb8b3a22ecdbc56be39d7d61af51c86fa3d9fdcbeb972f0d4"
+    }
+  ]
+}

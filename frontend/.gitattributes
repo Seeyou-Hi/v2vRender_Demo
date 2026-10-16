@@ -1,0 +1,35 @@
+# Normalize source files; preserve Windows launcher line endings.
+* text=auto
+*.js text eol=lf
+*.mjs text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Model, texture, archive and recording data must remain byte-identical.
+*.glb binary
+*.gltf text eol=lf
+*.stl binary
+*.dae text eol=lf
+*.obj text eol=lf
+*.mtl text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.wasm binary
+*.zip binary
+*.mp4 binary
+*.webm binary
+*.npy binary
+*.npz binary
+
+# Preserve upstream library/model text verbatim, including original whitespace.
+dist/vendor/** -whitespace
+dist/models/** -whitespace

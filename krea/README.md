@@ -1,6 +1,6 @@
 # Krea 14B＋VACE 渲染后端
 
-这是与仓库根目录 PAI H3 八步后端分开的可选模型。完整运行源码已包含；新服务器只需准备环境、模型权重和输入。
+本仓库仅提供 Krea 14B＋VACE 后端。完整推理源码与机械臂前端已包含；新服务器准备环境、模型权重后，按根目录 README 启动。
 
 前端持续交互、四卡模型常驻和5 FPS逐帧返回的部署入口见 [C3实时联调说明](docs/live_frontend_20261016.md)。常驻入口为 `resident_4gpu.sh`，HTTP通过 `--resident-dir` 复用预加载worker；原片段上传入口仍保留。
 
@@ -36,7 +36,7 @@ python scripts/server.py --config configs/example.json --gpus 1 --port 8001
 
 ## 1. 环境
 
-基线是 Linux x86_64、Python **3.12**、PyTorch **2.9.1+cu128**、CUDA Runtime **12.8**、FlashAttention **2.8.3**、cuDNN **9.15.1.9**。与 PAI 环境不同，必须使用独立虚拟环境。
+基线是 Linux x86_64、Python **3.12**、PyTorch **2.9.1+cu128**、CUDA Runtime **12.8**、FlashAttention **2.8.3**、cuDNN **9.15.1.9**。建议使用项目独立虚拟环境。
 
 系统需安装 Python 3.12/venv、FFmpeg（含 ffprobe）、C/C++ 编译器及兼容 CUDA 12.8 的 NVIDIA 驱动。测试使用四张 A800 80GB；源码也允许两卡；上表多卡速度/画质结论来自四卡，单卡结果见上一节。**模型初始化时每张卡会先加载完整模型再切分，不能按最终分片显存推断小显存卡能运行。** 建议至少 256 GB 主机内存，现有回归分配 384 GB。
 
@@ -132,7 +132,7 @@ curl -o output.mp4 http://127.0.0.1:8001/jobs/JOB_ID/output.mp4
 curl -o chunk.mp4 http://127.0.0.1:8001/jobs/JOB_ID/chunks/000000.mp4
 ```
 
-一次处理一个 GPU 任务，其余排队。每次上传任务独立加载/热身并重置缓存，任务之间不保持时序上下文；服务重启不自动恢复队列。上传任务使用“上传片段→分块/完整结果”；另支持下述持续推送帧的会话接口。PAI 仍使用其原有命令行入口，不会因启动这个服务自动切换到 Krea。
+一次处理一个 GPU 任务，其余排队。每次上传任务独立加载/热身并重置缓存，任务之间不保持时序上下文；服务重启不自动恢复队列。上传任务使用“上传片段→分块/完整结果”；另支持下述持续推送帧的会话接口。
 
 ## 5. 持续输入与分块生成
 
@@ -260,7 +260,7 @@ bash render_stream_4gpu.sh --config configs/local.json \
 
 ## 当前 C3 部署与后续维护（2026-10-16 核查）
 
-- 本次上传以 C3 `/home/test01/siyuheng/v2v_demo/deployments/krea_streaming_20261016/krea` 的源码为准；PAI H3 后端保持独立。
+- 本次上传以 C3 `/home/test01/siyuheng/v2v_demo/deployments/krea_streaming_20261016/krea` 的源码为准。
 - 当前运行目录：`/home/test01/siyuheng/v2v_demo/runs/krea_7day_restart_20261016_122322`。作业号 14103 是历史记录；维护前以 `/health`、进程参数和 `resident/status.json` 核实。
 - 环境：`/home/test01/siyuheng/v2v_demo/envs/scope`；模型：`/home/test01/siyuheng/v2v_demo/models/scope_plug`。文本编码器/分词器有独立路径，见当前运行目录 `config.json`。环境、权重、运行目录不上传 Git。
 - 前端独立仓库：`https://github.com/LeroneMOI/robotarm`，本次核查提交 `74981ae9d7588838d47dc4a6f43e60146bb33311`；C3 路径 `/home/test01/dulingyi/robotarm`，直接修改 `dist/`。

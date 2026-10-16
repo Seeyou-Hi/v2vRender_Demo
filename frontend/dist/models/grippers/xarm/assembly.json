@@ -1,0 +1,162 @@
+{
+  "kind": "xarm",
+  "base": "xarm_gripper_base_link",
+  "angleMax": 0.85,
+  "rotateZ": 1.5707963267948966,
+  "links": [
+    {
+      "name": "xarm_gripper_base_link",
+      "mesh": "base_link"
+    },
+    {
+      "name": "left_outer_knuckle",
+      "mesh": "left_outer_knuckle"
+    },
+    {
+      "name": "left_finger",
+      "mesh": "left_finger"
+    },
+    {
+      "name": "left_inner_knuckle",
+      "mesh": "left_inner_knuckle"
+    },
+    {
+      "name": "right_outer_knuckle",
+      "mesh": "right_outer_knuckle"
+    },
+    {
+      "name": "right_finger",
+      "mesh": "right_finger"
+    },
+    {
+      "name": "right_inner_knuckle",
+      "mesh": "right_inner_knuckle"
+    }
+  ],
+  "joints": [
+    {
+      "parent": "xarm_gripper_base_link",
+      "child": "left_outer_knuckle",
+      "xyz": [
+        0,
+        0.035,
+        0.059098
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    },
+    {
+      "parent": "left_outer_knuckle",
+      "child": "left_finger",
+      "xyz": [
+        0,
+        0.035465,
+        0.042039
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        -1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    },
+    {
+      "parent": "xarm_gripper_base_link",
+      "child": "left_inner_knuckle",
+      "xyz": [
+        0,
+        0.02,
+        0.074098
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    },
+    {
+      "parent": "xarm_gripper_base_link",
+      "child": "right_outer_knuckle",
+      "xyz": [
+        0,
+        -0.035,
+        0.059098
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        -1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    },
+    {
+      "parent": "right_outer_knuckle",
+      "child": "right_finger",
+      "xyz": [
+        0,
+        -0.035465,
+        0.042039
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    },
+    {
+      "parent": "xarm_gripper_base_link",
+      "child": "right_inner_knuckle",
+      "xyz": [
+        0,
+        -0.02,
+        0.074098
+      ],
+      "rpy": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        -1,
+        0,
+        0
+      ],
+      "multiplier": 1
+    }
+  ],
+  "pads": [
+    "left_finger",
+    "right_finger"
+  ]
+}

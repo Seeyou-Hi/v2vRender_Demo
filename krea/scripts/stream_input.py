@@ -116,3 +116,22 @@ def read_stream(directory, rank=0, barrier=lambda: None, idle_timeout=300):
             path.unlink()
         barrier()
         index += 1
+
+
+def decode_frame_body(body, encoding, limit):
+    """Bound decoded input before queue publication; retain byte-exact retry semantics."""
+    if encoding in ('', 'identity'):
+        if len(body) > limit: raise InboxError('Decoded input too large', 413)
+        return body
+    if encoding != 'gzip': raise InboxError('Unsupported Content-Encoding', 415)
+    import zlib
+    decoder = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    try:
+        decoded = decoder.decompress(body, limit + 1)
+        if len(decoded) > limit or decoder.unconsumed_tail:
+            raise InboxError('Decoded input too large', 413)
+        if not decoder.eof or decoder.unused_data:
+            raise InboxError('Invalid gzip frame body', 400)
+        return decoded
+    except zlib.error as exc:
+        raise InboxError('Invalid gzip frame body', 400) from exc

@@ -39,3 +39,8 @@ data/
 !krea/third_party/Scope/src/scope/core/pipelines/wan2_1/vace/models/**
 __pycache__/
 *.py[cod]
+
+node_modules/
+.DS_Store
+# Robot simulation assets are source assets, not neural network weights.
+!frontend/dist/**

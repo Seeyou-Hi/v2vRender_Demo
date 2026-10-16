@@ -12,7 +12,7 @@ import urllib.error
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from stream_input import StreamInbox, InboxError, FRAME_BYTES, read_stream
+from stream_input import StreamInbox, InboxError, FRAME_BYTES, read_stream, decode_frame_body
 from config import MODEL_FILES
 
 
@@ -88,6 +88,23 @@ class StreamTests(unittest.TestCase):
             with self.subTest(gpus=gpus):
                 self._http_stream_case(gpus)
 
+    def test_gzip_validation(self):
+        import gzip
+        raw = bytes(range(256)) * 100
+        self.assertEqual(decode_frame_body(gzip.compress(raw), 'gzip', len(raw)), raw)
+        for encoded, encoding, limit, status in [
+            (gzip.compress(raw), 'gzip', 100, 413),
+            (gzip.compress(raw)[:-3], 'gzip', len(raw), 400),
+            (b'bad', 'gzip', 100, 400),
+            (gzip.compress(raw)+b'trailing', 'gzip', len(raw), 400),
+            (b'bad', 'br', 100, 415),
+        ]:
+            with self.assertRaises(InboxError) as error: decode_frame_body(encoded, encoding, limit)
+            self.assertEqual(error.exception.status, status)
+
+    def test_gzip_http_and_busy_admission(self):
+        self._http_stream_case(4, 'frames', False, 5, 'gray8', compressed=True)
+
     def test_http_frame_output_modes(self):
         for save in (False, True):
             with self.subTest(save_mp4=save):
@@ -96,7 +113,7 @@ class StreamTests(unittest.TestCase):
     def test_five_fps_stream(self):
         self._http_stream_case(4, 'frames', True, 5)
 
-    def _http_stream_case(self, gpus, mode='video', save_mp4=True, fps=16, input_format='rgb24'):
+    def _http_stream_case(self, gpus, mode='video', save_mp4=True, fps=16, input_format='rgb24', compressed=False):
         # Real HTTP adapter and inbox; fake model process consumes incremental input.
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); models = root / 'models'
@@ -132,8 +149,8 @@ class StreamTests(unittest.TestCase):
             env = dict(os.environ, PYTHONPATH=str(root / 'fake'))
             process = subprocess.Popen([sys.executable, str(ROOT / 'scripts/server.py'), '--config', str(config), '--gpus', str(gpus), '--port', str(port), '--storage', str(root / 'jobs')], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-            def request(path, body=None):
-                with opener.open(urllib.request.Request(f'http://127.0.0.1:{port}' + path, data=body), timeout=3) as response:
+            def request(path, body=None, headers=None):
+                with opener.open(urllib.request.Request(f'http://127.0.0.1:{port}' + path, data=body, headers=headers or {}), timeout=3) as response:
                     return response.read()
             try:
                 for _ in range(100):
@@ -160,11 +177,17 @@ class StreamTests(unittest.TestCase):
                 base = '/streams/' + session['id']
                 frame_bytes = 384 * 640 if input_format == 'gray8' else FRAME_BYTES
                 body = bytes([17]) * (9 * frame_bytes)
-                request(base + '/frames/000000', body)
-                request(base + '/frames/000000', body)  # Retry must not duplicate output.
+                with self.assertRaises(urllib.error.HTTPError) as busy_error:
+                    request('/streams', b'{}')
+                self.assertEqual(busy_error.exception.code, 409)
+                import gzip
+                payload = gzip.compress(body) if compressed else body
+                headers = {'Content-Encoding': 'gzip'} if compressed else {}
+                request(base + '/frames/000000', payload, headers)
+                request(base + '/frames/000000', payload, headers)  # Retry must not duplicate output.
                 for _ in range(100):
                     state = json.loads(request(base))
-                    if state['chunks'] or (mode=='frames' and json.loads(request(base+'/frames'))['available_frames']>=9): break
+                    if (state['chunks'] if save_mp4 else (mode=='frames' and json.loads(request(base+'/frames'))['available_frames']>=9)): break
                     time.sleep(.05)
                 if save_mp4:
                     self.assertEqual(request(base + '/chunks/000000.mp4'), b'chunk9')

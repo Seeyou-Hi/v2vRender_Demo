@@ -53,10 +53,7 @@ def main(resident=None):
     if os.environ.get('SLURM_JOB_ID'):
         # C3 isolation verifier is optional elsewhere, mandatory under C3 launcher.
         if os.environ.get('KREA_C3_ISOLATION')=='1':
-            if world == 1:
-                from gpu_slurm_isolated import validate_worker
-            else:
-                from gpu_slurm_krea_isolated import validate_worker
+            from c3_validation import validate_worker
             validate_worker()
     if world not in (1,2,4): raise ValueError('Launch using torchrun --nproc_per_node=1, 2 or 4')
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK','0')))
