@@ -1,0 +1,498 @@
+{
+  "slurm_job": "14021",
+  "world_size": 4,
+  "status": "passed",
+  "real_http_to_gpu": true,
+  "cases": {
+    "frames_only": {
+      "session_id": "a8a0809f08174dcf9f96046f6738762e",
+      "frames": 164,
+      "frame_format": "png",
+      "save_mp4": false,
+      "first_frames_before_finish": true,
+      "first_frame_batch_wall_seconds": 160.78481856361032,
+      "profile": {
+        "compute_seconds": 18.628883846104145,
+        "delivered_fps": 8.803533338595447,
+        "steady_generated_fps": 8.939827464163068,
+        "mode": "stream",
+        "output_mode": "frames",
+        "frame_format": "png",
+        "save_mp4": false,
+        "world_size": 4,
+        "variant": "bf16_blocks",
+        "load_seconds": 130.85287298820913,
+        "delivered_frames": 164,
+        "render_and_encode_seconds": 21.625677278265357,
+        "chunks": [
+          {
+            "chunk": 0,
+            "input_start": 0,
+            "input_end": 9,
+            "compute_seconds": 1.1788826435804367,
+            "native_generated_frames": 9,
+            "output_frames": 9,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 2880,
+              "local_end": 2880
+            }
+          },
+          {
+            "chunk": 1,
+            "input_start": 9,
+            "input_end": 21,
+            "compute_seconds": 1.3403567299246788,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 2,
+            "input_start": 21,
+            "input_end": 33,
+            "compute_seconds": 1.3454910833388567,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 3,
+            "input_start": 33,
+            "input_end": 45,
+            "compute_seconds": 1.3450959995388985,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 4,
+            "input_start": 45,
+            "input_end": 57,
+            "compute_seconds": 1.3446008879691362,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 5,
+            "input_start": 57,
+            "input_end": 69,
+            "compute_seconds": 1.3448653165251017,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 6,
+            "input_start": 69,
+            "input_end": 81,
+            "compute_seconds": 1.3439927864819765,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 7,
+            "input_start": 81,
+            "input_end": 93,
+            "compute_seconds": 1.3435599729418755,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 8,
+            "input_start": 93,
+            "input_end": 105,
+            "compute_seconds": 1.3409598655998707,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 9,
+            "input_start": 105,
+            "input_end": 117,
+            "compute_seconds": 1.340591350570321,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 10,
+            "input_start": 117,
+            "input_end": 129,
+            "compute_seconds": 1.3397245109081268,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 11,
+            "input_start": 129,
+            "input_end": 141,
+            "compute_seconds": 1.3409589603543282,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 12,
+            "input_start": 141,
+            "input_end": 153,
+            "compute_seconds": 1.3399437479674816,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 13,
+            "input_start": 153,
+            "input_end": 164,
+            "compute_seconds": 1.3398599904030561,
+            "native_generated_frames": 12,
+            "output_frames": 11,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          }
+        ]
+      }
+    },
+    "frames_and_mp4": {
+      "session_id": "2f25df01905048a194df1a8bde33ba72",
+      "frames": 23,
+      "frame_format": "jpeg",
+      "save_mp4": true,
+      "first_frames_before_finish": true,
+      "first_frame_batch_wall_seconds": 154.71711421012878,
+      "profile": {
+        "compute_seconds": 3.8634868040680885,
+        "delivered_fps": 5.953171620977706,
+        "steady_generated_fps": 8.93393259942396,
+        "mode": "stream",
+        "output_mode": "frames",
+        "frame_format": "jpeg",
+        "save_mp4": true,
+        "world_size": 4,
+        "variant": "bf16_blocks",
+        "load_seconds": 125.35167728550732,
+        "delivered_frames": 23,
+        "render_and_encode_seconds": 4.306400269269943,
+        "chunks": [
+          {
+            "chunk": 0,
+            "input_start": 0,
+            "input_end": 9,
+            "compute_seconds": 1.1770998481661081,
+            "native_generated_frames": 9,
+            "output_frames": 9,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 2880,
+              "local_end": 2880
+            }
+          },
+          {
+            "chunk": 1,
+            "input_start": 9,
+            "input_end": 21,
+            "compute_seconds": 1.3406419027596712,
+            "native_generated_frames": 12,
+            "output_frames": 12,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          },
+          {
+            "chunk": 2,
+            "input_start": 21,
+            "input_end": 23,
+            "compute_seconds": 1.3457450531423092,
+            "native_generated_frames": 12,
+            "output_frames": 2,
+            "cache": {
+              "kv_layers": 40,
+              "kv_shape": [
+                1,
+                5760,
+                10,
+                128
+              ],
+              "cross_shape": [
+                1,
+                512,
+                10,
+                128
+              ],
+              "kv_bytes": 1179648000,
+              "global_end": 5760,
+              "local_end": 5760
+            }
+          }
+        ]
+      }
+    }
+  }
+}

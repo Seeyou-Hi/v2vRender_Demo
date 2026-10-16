@@ -1,1 +1,16 @@
-Photorealistic camera footage of exactly two industrial robotic arms with black parallel grippers working on a white laboratory worktable. The left side has a red and gold beverage can, the right side has a red bottle, with blue and orange pads on the table. Fixed tripod camera, unchanged framing. Follow the supplied structural control video at every moment: preserve both robot silhouettes, joint poses, gripper opening, object positions and contact timing. Stationary parts remain stationary until their source motion begins. Render detailed brushed metal, realistic black polymer grippers, subtle surface roughness, natural soft laboratory lighting, realistic reflections and contact shadows. Crisp object boundaries and fine surface detail. Use the reference image for realistic materials, lighting, object appearance and laboratory environment; use the structural control video for the time-varying poses and positions.
+Geometry and Motion Locked, Appearance Only Editable.
+
+Transform the input robotic simulation video into photorealistic footage of a real industrial robotics laboratory.
+
+STRICTLY preserve the original robot geometry, joint structure, proportions, object positions, spatial relationships, camera angle, perspective, composition, motion trajectories, and action timing.
+
+Maintain exact frame-by-frame alignment with the source video. All robotic movements, gripper interactions, and object motions must remain identical to the original simulation.
+
+Avoid the following: Altered geometry, modified robot structure, incorrect joints, changed proportions, camera movement, viewpoint changes, trajectory deviation, motion drift, timing mismatch, object displacement, extra objects, missing components, distorted grippers, unrealistic articulation, flickering, temporal inconsistency, geometry morphing, floating objects, artificial CGI appearance, cartoon style, oversaturated colors, excessive bloom, unrealistic reflections, motion hallucination.
+
+Appearance details (subject to the geometry and motion rules above):
+Only enhance visual appearance: realistic industrial materials, brushed metal, subtle reflections, physically accurate lighting, natural shadows, ambient occlusion, realistic surface textures, and cinematic color grading.
+
+Professional industrial photography, physically based rendering (PBR), global illumination, realistic camera exposure, sharp mechanical details, natural photographic realism, consistent lighting and materials across frames.
+
+The output should look like real camera footage, not CGI.

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "principle": "Geometry and Motion Locked, Appearance Only Editable.",
+  "fixed_positive": "Transform the input robotic simulation video into photorealistic footage of a real industrial robotics laboratory.\n\nSTRICTLY preserve the original robot geometry, joint structure, proportions, object positions, spatial relationships, camera angle, perspective, composition, motion trajectories, and action timing.\n\nMaintain exact frame-by-frame alignment with the source video. All robotic movements, gripper interactions, and object motions must remain identical to the original simulation.",
+  "default_appearance": "Only enhance visual appearance: realistic industrial materials, brushed metal, subtle reflections, physically accurate lighting, natural shadows, ambient occlusion, realistic surface textures, and cinematic color grading.\n\nProfessional industrial photography, physically based rendering (PBR), global illumination, realistic camera exposure, sharp mechanical details, natural photographic realism, consistent lighting and materials across frames.\n\nThe output should look like real camera footage, not CGI.",
+  "fixed_negative": "Altered geometry, modified robot structure, incorrect joints, changed proportions, camera movement, viewpoint changes, trajectory deviation, motion drift, timing mismatch, object displacement, extra objects, missing components, distorted grippers, unrealistic articulation, flickering, temporal inconsistency, geometry morphing, floating objects, artificial CGI appearance, cartoon style, oversaturated colors, excessive bloom, unrealistic reflections, motion hallucination.",
+  "negative_mode": "positive_avoid_clause",
+  "native_negative_conditioning": false
+}

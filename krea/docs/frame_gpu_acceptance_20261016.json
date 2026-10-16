@@ -1,0 +1,14 @@
+{
+  "first_frames_before_finish": true,
+  "mp4_disabled": true,
+  "first_chunk_wall_seconds": 133.46801236271858,
+  "frames": 11,
+  "chunk_lengths": [
+    9,
+    2
+  ],
+  "input_consumed": true,
+  "gpus": 1,
+  "slurm_job": "14016",
+  "note": "Real GPU CLI inbox validation; HTTP separately uses mock worker tests."
+}

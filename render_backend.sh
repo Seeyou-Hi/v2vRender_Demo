@@ -11,7 +11,7 @@ case "$backend" in
     ;;
   krea)
     KREA_PYTHON=${KREA_PYTHON:-$PWD/krea/.venv/bin/python}
-    exec "$KREA_PYTHON" -m torch.distributed.run --standalone --nproc_per_node="${KREA_GPUS:-4}" krea/scripts/render.py "$@"
+    exec "$KREA_PYTHON" -m torch.distributed.run --standalone --nproc_per_node="${KREA_GPUS:-1}" krea/scripts/render.py "$@"
     ;;
   *)
     echo 'Usage: render_backend.sh {pai-h3|krea} [backend arguments]' >&2

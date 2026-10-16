@@ -58,9 +58,10 @@ def encode_video(path, frames, fps=16):
     path = Path(path); temp = path.with_name(path.stem+'.encoding.mp4')
     ffmpeg = os.environ.get('FFMPEG') or imageio_ffmpeg.get_ffmpeg_exe()
     h,w = frames.shape[1:3]
+    # Disable B-frame reordering so independently encoded chunks join without DTS gaps.
     proc = subprocess.Popen([ffmpeg,'-v','error','-y','-f','rawvideo','-pix_fmt','rgb24',
         '-s',f'{w}x{h}','-r',str(fps),'-i','pipe:0','-an','-c:v','libx264','-threads','2',
-        '-preset','fast','-crf','18','-profile:v','main','-pix_fmt','yuv420p','-movflags','+faststart',str(temp)],stdin=subprocess.PIPE)
+        '-preset','fast','-crf','18','-bf','0','-profile:v','main','-pix_fmt','yuv420p','-movflags','+faststart',str(temp)],stdin=subprocess.PIPE)
     try:
         for frame in frames: proc.stdin.write(np.ascontiguousarray(frame).tobytes())
     finally:
@@ -76,3 +77,49 @@ def encode_video(path, frames, fps=16):
     assert int(video['nb_read_frames'])==len(frames)
     temp.replace(path)
     return info
+
+
+def concat_chunks(path, expected_frames, fps=None):
+    """Finalize disk-backed stream chunks without accumulating video frames in RAM."""
+    import imageio_ffmpeg
+    path = Path(path)
+    chunks = sorted((path.parent / 'chunks').glob('*.mp4'))
+    if not chunks:
+        raise ValueError('No generated chunks')
+    listing = path.parent / 'chunks.ffconcat'
+    listing.write_text('ffconcat version 1.0\n' + ''.join(f"file 'chunks/{p.name}'\n" for p in chunks))
+    temporary = path.with_name('output.encoding.mp4')
+    ffmpeg = os.environ.get('FFMPEG') or imageio_ffmpeg.get_ffmpeg_exe()
+    subprocess.run([ffmpeg,'-v','error','-y','-f','concat','-safe','1','-i',str(listing),'-c','copy','-movflags','+faststart',str(temporary)],check=True)
+    probe = os.environ.get('FFPROBE') or shutil.which('ffprobe')
+    if not probe:
+        raise RuntimeError('Install ffprobe')
+    info = json.loads(subprocess.check_output([probe,'-v','error','-count_frames','-show_streams','-of','json',str(temporary)]))
+    video = next(s for s in info['streams'] if s['codec_type']=='video')
+    assert video['codec_name']=='h264' and video['pix_fmt']=='yuv420p'
+    assert int(video['nb_read_frames'])==expected_frames
+    if fps is not None:
+        from fractions import Fraction
+        assert Fraction(video['avg_frame_rate'])==fps,video['avg_frame_rate']
+        assert abs(float(video['duration'])-expected_frames/fps)<0.001,video['duration']
+    subprocess.run([ffmpeg,'-v','error','-xerror','-i',str(temporary),'-f','null','-'],check=True)
+    temporary.replace(path)
+    return info
+
+
+def write_frames(directory, frames, start=0, frame_format='png'):
+    """Publish each RGB uint8 frame atomically; filenames use global frame indices."""
+    import cv2
+    if frame_format not in ('png', 'jpeg'):
+        raise ValueError('frame_format must be png or jpeg')
+    directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
+    extension = '.png' if frame_format == 'png' else '.jpg'
+    for offset, frame in enumerate(frames):
+        if frame.dtype != np.uint8 or frame.ndim != 3 or frame.shape[2] != 3:
+            raise ValueError('Expected uint8 RGB frames')
+        options = [cv2.IMWRITE_PNG_COMPRESSION, 1] if frame_format == 'png' else [cv2.IMWRITE_JPEG_QUALITY, 95]
+        ok, encoded = cv2.imencode(extension, frame[:, :, ::-1], options)
+        if not ok: raise RuntimeError('Image encoding failed')
+        destination = directory / f'{start + offset:06d}{extension}'
+        temporary = destination.with_suffix(extension + '.tmp')
+        temporary.write_bytes(encoded.tobytes()); temporary.replace(destination)
