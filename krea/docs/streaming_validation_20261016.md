@@ -64,3 +64,12 @@ C3 CPU 测试全部7项通过：配置、媒体往返、原上传接口、流式
 本地 16 项后端 CPU 测试、16 项前端协议/缓存/播放测试通过。GPU 未重启；HTTP API 在空闲且无 resident tasks 时重启，旧会话文件保留。前端备份：`/home/test01/dulingyi/maintenance-backups/20261016_latency`；后端备份：`/home/test01/siyuheng/v2v_demo/versions/before_latency_20261016`。
 
 实际 3D 页面采集另测两次：无 JS pageerror，但测试机 SwiftShader 软件 WebGL 降至约 0 FPS，仅采集 1 帧，60/120 秒内未凑齐首块；已取消这些测试会话。此项未通过，不能宣称真实交互验收完成。协议/渲染/播放实测与该软件 3D 采集限制分别记录；测试结束 health 为 ready、active_sessions 为空。
+
+
+## Playback latency follow-up
+
+Real four-GPU tests paced 129 saved depth frames at 5 FPS through the actual HTTP API and browser Canvas player. Old playback used the actual draw time as the next interval origin, accumulating browser RAF rounding delays. Its observed frame age grew from 3.95 s to 6.55 s. The new player maintains presentation deadlines and publishes a contiguous decoded prefix immediately instead of waiting for all six downloads. First playback was 3.67 s; final-window median frame age was 4.37 s (last observation 4.32 s). All 129 frames played in order. Input samples were repeated saved depth, not real interactive capture; upload timing differed between runs. These numbers do not establish the user's Mac latency or isolate the effect of each change.
+
+Backend baseline compute was 14.646 s for 129 frames, 8.81 FPS overall / 8.92 FPS steady; subsequent 12-frame chunks took ~1.345 s. Native chunk size remains unchanged. At 5 FPS, collecting a subsequent 12-frame block spans ~2.4 s, which contributes substantial structural latency even when inference throughput exceeds arrival rate.
+
+Deployed only frame-player.js and its tests on C3; no API/GPU restart. File hash verified through Nginx. Added tests for 59 Hz clock drift and early ordered publication; targeted frontend tests: 25 passed. Raw timings: playback_latency_validation_20261016.json.

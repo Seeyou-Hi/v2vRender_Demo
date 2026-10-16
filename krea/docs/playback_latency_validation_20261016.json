@@ -1,0 +1,23 @@
+{
+  "input_fps": 5,
+  "frames": 129,
+  "method": "Saved depth frame repeated, native 9/12-frame uploads paced at capture deadlines, real resident four-GPU backend, headless Chrome canvas through SSH tunnel. Frame age sampled every 250 ms, relative to test start (includes session opening); not real simulation capture or user Mac acceptance.",
+  "results": [
+    {
+      "version": "before",
+      "session": "b5037e163cd3436cb6e82ba0066930e3",
+      "played": 129,
+      "first_playback_seconds": 3.9544000000953674,
+      "last_observed_frame_age_seconds": 6.554400000095367,
+      "final_window_median_frame_age_seconds": 6.454400000095369
+    },
+    {
+      "version": "after",
+      "session": "0562c8f5e9f5414c86737b1e9943ae95",
+      "played": 129,
+      "first_playback_seconds": 3.6693999996185305,
+      "last_observed_frame_age_seconds": 4.319399999618529,
+      "final_window_median_frame_age_seconds": 4.36939999961853
+    }
+  ]
+}
