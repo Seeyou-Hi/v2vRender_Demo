@@ -42,7 +42,7 @@ function setup(view, wristArm = '1', kind = 'depth', open = async () => {}, inpu
     + '\nthis.install = installStreamCapture;', sandbox);
   const controller = sandbox.install(context);
   return { element, calls, sent, comparison, released, controller, start: () => element('stream-start').onclick(),
-    get opened() { return opened; }, get disposed() { return disposed; }, get cancelled() { return cancelled; } };
+    context, get opened() { return opened; }, get disposed() { return disposed; }, get cancelled() { return cancelled; } };
 }
 for (const view of ['ext1', 'ext2', 'wrist', 'viewport']) {
   test('stream captures selected ' + view + ' camera and sends matching depth', async () => {
@@ -104,4 +104,22 @@ test('camera and wrist choice stay consistent while opening the stream; Canny re
   assert.equal(s.calls[0].saveDepth, false);
   await s.controller.stop();
   assert.deepEqual(Array.from(new Uint8Array(await s.sent[0].body.arrayBuffer()).slice(0, 3)), [10, 20, 30]);
+});
+
+
+test('reference stream resets ext1 before opening and freezes while upload opens', async () => {
+ let release;const ready=new Promise(resolve=>release=resolve);
+ const s=setup('viewport','0','depth',()=>ready);
+ let reset=0;
+ s.context.backend.settings=()=>({kind:'depth',useReference:true,referenceFile:new Blob(['ref'])});
+ s.context.prepareReferenceStart=()=>{reset++;s.element('record-view').value='ext1';};
+ const opening=s.start();assert.equal(reset,1);assert.equal(s.controller.isBackpressured(),true);
+ release();await opening;s.controller.tick(0);await new Promise(r=>setImmediate(r));
+ assert.deepEqual(Array.from(s.calls[0].views),['ext1']);await s.controller.stop();
+});
+
+test('missing reference rejects before resetting or opening backend', async () => {
+ const s=setup('ext1');let reset=0;
+ s.context.backend.settings=()=>({kind:'depth',useReference:true});s.context.prepareReferenceStart=()=>reset++;
+ await s.start();assert.equal(reset,0);assert.equal(s.opened,0);assert.match(s.element('stream-status').textContent,/参考图/);
 });

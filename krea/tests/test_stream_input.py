@@ -88,6 +88,9 @@ class StreamTests(unittest.TestCase):
             with self.subTest(gpus=gpus):
                 self._http_stream_case(gpus)
 
+    def test_reference_reaches_stream_worker(self):
+        self._http_stream_case(4, 'frames', False, 5, 'gray8', reference=True)
+
     def test_gzip_validation(self):
         import gzip
         raw = bytes(range(256)) * 100
@@ -113,7 +116,7 @@ class StreamTests(unittest.TestCase):
     def test_five_fps_stream(self):
         self._http_stream_case(4, 'frames', True, 5)
 
-    def _http_stream_case(self, gpus, mode='video', save_mp4=True, fps=16, input_format='rgb24', compressed=False):
+    def _http_stream_case(self, gpus, mode='video', save_mp4=True, fps=16, input_format='rgb24', compressed=False, reference=False):
         # Real HTTP adapter and inbox; fake model process consumes incremental input.
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); models = root / 'models'
@@ -132,7 +135,8 @@ class StreamTests(unittest.TestCase):
                 f'assert sys.argv[sys.argv.index("--input-fps")+1]=="{fps}"\n'
                 'assert sys.argv[sys.argv.index("--output-mode")+1]==mode\n'
                 'assert ("--save-mp4" in sys.argv)==save_mp4\n'
-                f'assert "--nproc_per_node={gpus}" in sys.argv\n'
+                f'assert "--nproc_per_node={gpus}" in sys.argv\n' +
+                ('assert Path(sys.argv[sys.argv.index("--reference")+1]).read_bytes()==b"reference-fixture"\n' if reference else 'assert "--reference" not in sys.argv\n') +
                 'src=Path(sys.argv[sys.argv.index("--stream-dir")+1])\n'
                 'out=Path(sys.argv[sys.argv.index("--output")+1]);out.mkdir();(out/"chunks").mkdir()\n'
                 '(out/"chunks"/"000001.encoding.mp4").write_bytes(b"unfinished")\n'
@@ -170,7 +174,12 @@ class StreamTests(unittest.TestCase):
                     with self.assertRaises(urllib.error.HTTPError) as error:request('/streams',json.dumps({'input_fps':bad}).encode())
                     self.assertEqual(error.exception.code,400)
                 self.assertEqual(health['gpus'], gpus)
-                session = json.loads(request('/streams', json.dumps(dict(control_kind='depth',output_mode=mode,save_mp4=save_mp4,input_fps=fps,input_format=input_format)).encode()))
+                self.assertTrue(health['stream_reference'])
+                for invalid in ('../bad.png', '0'*32+'.png', 123, '0'*32+'.mp4'):
+                    with self.assertRaises(urllib.error.HTTPError) as error: request('/streams',json.dumps({'reference':invalid}).encode())
+                    self.assertEqual(error.exception.code,400)
+                ref=json.loads(request('/uploads/png',b'reference-fixture'))['upload'] if reference else None
+                session = json.loads(request('/streams', json.dumps(dict(control_kind='depth',output_mode=mode,save_mp4=save_mp4,input_fps=fps,input_format=input_format,**({'reference':ref} if ref else {}))).encode()))
                 self.assertEqual(session['input_format'], input_format)
                 self.assertEqual(session['fps'],fps)
                 self.assertEqual((session['first_frames'], session['chunk_frames']), (9, 12))

@@ -32,14 +32,14 @@ export function installBackendRendering() {
   const enabled = $('backend-enabled'), kind = $('backend-kind'), variant = $('backend-variant');
   const prompt = $('backend-prompt'), status = $('backend-status'), retry = $('backend-retry');
   const player = $('backend-video'), chunks = $('backend-chunk'), download = $('backend-download');
-  let inputGzip = false;
+  let inputGzip = false, referenceFile = null;
   const encodedBodies = new WeakMap();
   let collection = 'jobs', generation = 0, framePlayback = null, frameMode = false;
   const canvas = $('backend-canvas');
   let busy = false, last = null, job = null, listed = new Set(), playingChunk = false;
   let nextChunk = 0, completed = false, consecutiveErrors = 0;
   const message = text => { status.textContent = text; };
-  const settings = () => ({ enabled: enabled.checked, kind: kind.value, variant: variant.value, prompt: prompt.value.trim(), releaseAfterUpload: !!$('stream-release-upload')?.checked });
+  const settings = () => ({ enabled: enabled.checked, kind: kind.value, variant: variant.value, prompt: prompt.value.trim(), releaseAfterUpload: !!$('stream-release-upload')?.checked, useReference: !!$('backend-reference-enabled')?.checked, referenceFile });
   const stateNames = { queued: '排队中', running: '处理中', loading: '加载模型', warming_up: '模型热身', waiting_input: '等待输入帧', encoding_output: '封装完整视频', rendering: '生成视频', completed: '生成完成', failed: '生成失败' };
   function playChunk(index, autoplay = false) {
     const option = chunks.options[index];
@@ -136,6 +136,20 @@ export function installBackendRendering() {
       job = result.id; poll();
     } catch (error) { busy = false; retry.hidden = false; message(error.message); }
   }
+  async function uploadReference(options) {
+    if (!options.useReference) return undefined;
+    if (!options.referenceFile) throw Error('请先选择与 ext1 首帧对齐的 PNG/JPEG 参考图');
+    const file = options.referenceFile;
+    if (file.size > 20 * 1024 * 1024) throw Error('参考图不能超过 20 MB');
+    const type = file.type;
+    if (!['image/png','image/jpeg'].includes(type)) throw Error('参考图只支持 PNG/JPEG');
+    message('正在上传首帧参考图…');
+    const result = await renderRequest(`/uploads/${type === 'image/png' ? 'png' : 'jpg'}`, {
+      method: 'POST', headers: {'Content-Type': type}, body: file
+    });
+    if (!/^[0-9a-f]{32}\.(png|jpg|jpeg)$/.test(result.upload)) throw Error('无效参考图上传结果');
+    return result.upload;
+  }
   async function openStream(options) {
     if (busy) throw Error('已有后端任务，请等待完成');
     framePlayback?.stop(); framePlayback = null; frameMode = false; canvas.hidden = true;
@@ -147,14 +161,16 @@ export function installBackendRendering() {
     try {
       const health = await renderRequest('/health');
       if (!health.stream_input) throw Error('后端尚未启用流式输入，请更新并重启服务');
-      if (health.resident && !['ready','busy'].includes(health.resident.status)) throw Error('后端模型正在预加载，请稍后开始');
+      if (health.resident && !['ready','busy'].includes(health.resident.status)) throw Error(health.resident.status === 'failed' ? '常驻模型未运行，请先启动后端 GPU 作业' : '后端模型正在预加载，请稍后开始');
+      if (options.useReference && !health.stream_reference) throw Error('后端尚未支持流式参考图，请更新 HTTP 接口');
+      const reference = await uploadReference(options);
       frameMode = !!health.frame_output;
       if (frameMode) streamComparison.reset(options.kind, !!options.releaseAfterUpload);
       const inputFps = options.inputFps ?? 5;
       if (!(health.supported_input_fps || [health.fps]).includes(inputFps)) throw Error('后端尚未支持 5 FPS 输入，请更新并重启后端');
       inputGzip = typeof CompressionStream !== 'undefined' && health.supported_input_encodings?.includes('gzip');
       const inputFormat = options.kind === 'depth' && health.supported_input_formats?.includes('gray8') ? 'gray8' : 'rgb24';
-      const result = await renderRequest('/streams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ control_kind: options.kind, variant: options.variant, prompt: options.prompt || '', input_fps: inputFps, input_format: inputFormat, ...(frameMode ? { output_mode: 'frames', frame_format: 'jpeg', save_mp4: false } : {}) }) });
+      const result = await renderRequest('/streams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ control_kind: options.kind, variant: options.variant, prompt: options.prompt || '', ...(reference ? {reference} : {}), input_fps: inputFps, input_format: inputFormat, ...(frameMode ? { output_mode: 'frames', frame_format: 'jpeg', save_mp4: false } : {}) }) });
       if (!/^[0-9a-f]{32}$/.test(result.id)) throw Error('无效会话 ID');
       job = result.id;
       if (frameMode) framePlayback = new FramePlayer(canvas, API, job, renderRequest, error => { message(error.message); });
@@ -179,5 +195,5 @@ export function installBackendRendering() {
     if (collection === 'streams' && busy && job) navigator.sendBeacon(`${API}/streams/${job}/cancel`, new Blob(['{}'], {type:'application/json'}));
   });
   retry.onclick = () => { if (last) submit(last.files, last.options); };
-  return { settings, submit, openStream, pushStream, finishStream, cancelStream, isBusy: () => busy };
+  return { settings, setReference: file => { referenceFile = file; }, submit, openStream, pushStream, finishStream, cancelStream, isBusy: () => busy };
 }

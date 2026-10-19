@@ -54,7 +54,7 @@ def main():
             cmd+=['--stream-dir',str(directory/'incoming')] if stream else ['--control',str(uploads/request['control'])]
             if stream:
                 cmd+=['--input-fps',str(request.get('input_fps',16)),'--output-mode',request.get('output_mode','video'),'--frame-format',request.get('frame_format','png'),'--save-mp4' if request.get('save_mp4',request.get('output_mode','video')=='video') else '--no-save-mp4']
-            if request.get('reference') and not stream:cmd+=['--reference',str(uploads/request['reference'])]
+            if request.get('reference'):cmd+=['--reference',str(uploads/request['reference'])]
             if args.resident_dir:
                 task=args.resident_dir/'tasks'/f'{job}.json';task.parent.mkdir(exist_ok=True)
                 temporary=task.with_suffix('.tmp');temporary.write_text(json.dumps(dict(argv=cmd[cmd.index(str(ROOT/'scripts/render.py'))+1:])));temporary.replace(task)
@@ -121,6 +121,10 @@ def main():
                 if request.get('variant','bf16') not in ('bf16','bf16_blocks'):raise ValueError('Invalid variant')
                 if request.get('control_kind','depth') not in ('depth','canny'):raise ValueError('Invalid control_kind')
                 if not isinstance(request.get('prompt',''),str):raise ValueError('prompt must be text')
+                reference=request.get('reference')
+                if reference is not None:
+                    if not isinstance(reference,str) or not re.fullmatch(r'[0-9a-f]{32}\.(png|jpg|jpeg)',reference) or not (uploads/reference).is_file():
+                        raise ValueError('reference must name an uploaded PNG or JPEG image')
                 if self.path=='/streams':
                     input_format=request.get('input_format','rgb24')
                     if input_format not in ('rgb24','gray8'):raise ValueError('Invalid input_format')
@@ -138,7 +142,7 @@ def main():
                         if active:return self.reply(409,{'error':f"后端已有未结束会话 {active['id']}，请先结束或取消该会话",'active_session':active['id']})
                         job=uuid.uuid4().hex;(storage/job).mkdir()
                         streams[job]=StreamInbox(storage/job/'incoming',input_format=input_format)
-                        jobs[job]=dict(id=job,status='queued',backend='krea',mode='stream',created_at=time.time(),input_format=input_format,input_fps=fps,fps=fps,output_mode=mode,frame_format=fmt,save_mp4=mp4,variant=request.get('variant','bf16'),received_frames=0)
+                        jobs[job]=dict(id=job,status='queued',backend='krea',mode='stream',created_at=time.time(),input_format=input_format,input_fps=fps,fps=fps,output_mode=mode,frame_format=fmt,save_mp4=mp4,variant=request.get('variant','bf16'),reference=reference,received_frames=0)
                     update(job);executor.submit(run,job,dict(request,stream=True))
                     return self.reply(202,{'id':job,'status_url':f'/streams/{job}','first_frames':9,'chunk_frames':12,'fps':fps,'input_fps':fps,'max_frames':4800,'input_format':input_format,'queue_capacity':4,'output_mode':mode,'frame_format':fmt,'save_mp4':mp4,'frames_url':f'/streams/{job}/frames'})
                 for key in ('control','reference'):
@@ -155,7 +159,7 @@ def main():
         def do_GET(self):
             if self.path=='/prompt-policy':return self.reply(200,POLICY)
             if self.path=='/health':
-                health={'backend':'krea','variants':['bf16','bf16_blocks'],'gpus':args.gpus,'stream_input':True,'frame_output':True,'first_frames':9,'chunk_frames':12,'fps':16,'supported_input_fps':[5,16],'supported_input_formats':['rgb24','gray8'],'supported_input_encodings':['identity','gzip']}
+                health={'backend':'krea','variants':['bf16','bf16_blocks'],'gpus':args.gpus,'stream_input':True,'frame_output':True,'stream_reference':True,'first_frames':9,'chunk_frames':12,'fps':16,'supported_input_fps':[5,16],'supported_input_formats':['rgb24','gray8'],'supported_input_encodings':['identity','gzip']}
                 with lock:health['active_sessions']=[dict(id=v['id'],status=v['status'],received_frames=v.get('received_frames',0)) for v in jobs.values() if v['status'] in ('queued','running')]
                 if args.resident_dir:
                     path=args.resident_dir/'status.json'

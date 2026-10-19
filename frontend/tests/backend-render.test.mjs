@@ -148,3 +148,27 @@ test('cancelling a stream releases busy state and ignores old scheduled polls', 
   const count=requests.length; await timers.shift()(); await flush();
   assert.equal(requests.length,count);
 });
+
+
+test('reference image uploads before creating a stream and is included in its request', async t => {
+ const image=new Blob(['png'],{type:'image/png'});
+ const {get,requests,controller}=setup(t,(url,options)=>{
+  if(url.endsWith('/health'))return json({stream_input:true,stream_reference:true,fps:5,supported_input_fps:[5]});
+  if(url.endsWith('/uploads/png'))return json({upload:`${id}.png`},201);
+  if(url.endsWith('/streams'))return json({id},202);
+  return json({status:'running',chunks:[]});
+ });
+ controller.setReference(image);get('backend-reference-enabled').checked=true;
+ await controller.openStream(controller.settings());
+ const upload=requests.findIndex(r=>r.url.endsWith('/uploads/png'));
+ const stream=requests.findIndex(r=>r.url.endsWith('/streams'));
+ assert.ok(upload<stream);assert.equal(requests[upload].options.body,image);
+ assert.equal(JSON.parse(requests[stream].options.body).reference,`${id}.png`);
+ await controller.cancelStream();
+});
+
+test('reference mode refuses a backend that would silently ignore the image', async t => {
+ const {controller,requests}=setup(t,()=>json({stream_input:true,fps:5,supported_input_fps:[5]}));
+ await assert.rejects(controller.openStream({useReference:true,referenceFile:new Blob(['x'])}),/参考图/);
+ assert.equal(requests.length,1);assert.equal(controller.isBusy(),false);
+});

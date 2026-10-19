@@ -15,19 +15,22 @@ export function installStreamCapture(context) {
   async function start() {
     if (starting || session) return;
     if (!context.canStart() || context.backend.isBusy()) { message('请先结束录制或等待当前后端任务完成'); return; }
-    const view = $('record-view').value;
-    if (!['ext1', 'ext2', 'wrist', 'viewport'].includes(view)) {
-      message('流式渲染请选择单视角（ext1、ext2、腕部或当前网页视角）'); return;
-    }
+    let view = $('record-view').value;
     const wristArm = Number($('wrist-arm').value);
     starting = true; button.disabled = true;
     let resources = null, opened = false;
     try {
-      resources = createCaptureResources(640, 384);
       const options = { ...context.backend.settings(), inputFps: INPUT_FPS };
+      if (options.useReference) {
+        if (!options.referenceFile) throw Error('请先选择参考图');
+        if (!context.prepareReferenceStart) throw Error('前端未配置 ext1 参考图场景');
+        context.prepareReferenceStart(); view = 'ext1';
+      }
+      if (!['ext1', 'ext2', 'wrist', 'viewport'].includes(view)) throw Error('流式渲染请选择单视角（ext1、ext2、腕部或当前网页视角）');
+      resources = createCaptureResources(640, 384);
       const result = await context.backend.openStream(options); opened = true;
       options.inputFormat = result.input_format || 'rgb24';
-      const controls = Array.from(document.querySelectorAll('#record-video,#demo-record,#capture-data,#physics-enabled,#solver-kind,#gripper-kind,#item-kind,#item-style,#demo-mode,#demo-exit,#demo-replay,#backend-enabled,#backend-kind,#backend-variant,#backend-prompt,#stream-release-upload,#record-view,#wrist-arm'));
+      const controls = Array.from(document.querySelectorAll('#record-video,#demo-record,#capture-data,#physics-enabled,#solver-kind,#gripper-kind,#item-kind,#item-style,#demo-mode,#demo-exit,#demo-replay,#backend-enabled,#backend-kind,#backend-variant,#backend-prompt,#stream-release-upload,#record-view,#wrist-arm,#reference-prepare,#reference-file,#backend-reference-enabled'));
       const saved = controls.map(el => [el, el.disabled]); controls.forEach(el => { el.disabled = true; });
       session = { resources, saved, options, frames: [], count: 0, first: true, last: -Infinity, capture: null, closing: false, view, wristArm, maxFrames: result.max_frames || 4800 };
       session.sender = new StreamSender(context.backend, error => { stop(error); });
@@ -80,5 +83,5 @@ export function installStreamCapture(context) {
   }
   button.onclick = () => session ? stop() : start();
   window.addEventListener('beforeunload', event => { if (session || starting) { event.preventDefault(); event.returnValue = ''; } });
-  return { tick, stop, isBackpressured: () => !!session && (session.closing || session.sender.full || streamComparison.full || document.hidden || !!session.capture && performance.now() - session.last >= 1000 / INPUT_FPS) };
+  return { tick, stop, isBackpressured: () => starting || !!session && (session.closing || session.sender.full || streamComparison.full || document.hidden || !!session.capture && performance.now() - session.last >= 1000 / INPUT_FPS) };
 }

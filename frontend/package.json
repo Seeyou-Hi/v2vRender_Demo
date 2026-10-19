@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check backend-proxy.mjs && node --check dist/app.js && node --check dist/motion-recording.js && node --check dist/backend-render.js && node --check dist/stream-capture.js && node --check dist/stream-sender.js && node --check dist/stream-scene-capture.js && node --check dist/gpu-frame-resolver.js && node --check dist/frame-player.js && node --check dist/stream-comparison.js",
-    "test": "node tests/unified-contact.test.mjs && node tests/oriented-grasp.test.mjs && node tests/centering.test.mjs && node --test tests/backend-proxy.test.mjs tests/backend-render.test.mjs tests/stream-sender.test.mjs tests/stream-capture.test.mjs tests/stream-comparison.test.mjs tests/frame-player.test.mjs",
-    "test:backend": "node --test tests/backend-proxy.test.mjs tests/backend-render.test.mjs tests/stream-sender.test.mjs tests/stream-capture.test.mjs tests/stream-comparison.test.mjs tests/frame-player.test.mjs"
+    "check": "node --check server.mjs && node --check backend-proxy.mjs && node --check dist/app.js && node --check dist/motion-recording.js && node --check dist/backend-render.js && node --check dist/stream-capture.js && node --check dist/stream-sender.js && node --check dist/stream-scene-capture.js && node --check dist/gpu-frame-resolver.js && node --check dist/frame-player.js && node --check dist/stream-comparison.js && node --check dist/reference-frame.js",
+    "test": "node tests/unified-contact.test.mjs && node tests/oriented-grasp.test.mjs && node tests/centering.test.mjs && node --test tests/backend-proxy.test.mjs tests/backend-render.test.mjs tests/stream-sender.test.mjs tests/stream-capture.test.mjs tests/stream-comparison.test.mjs tests/frame-player.test.mjs tests/reference-frame.test.mjs",
+    "test:backend": "node --test tests/backend-proxy.test.mjs tests/backend-render.test.mjs tests/stream-sender.test.mjs tests/stream-capture.test.mjs tests/stream-comparison.test.mjs tests/frame-player.test.mjs tests/reference-frame.test.mjs"
   },
   "engines": {
     "node": ">=20"
