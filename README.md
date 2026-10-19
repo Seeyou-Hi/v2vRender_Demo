@@ -10,7 +10,7 @@
 frontend/                 完整前端：直接编辑 dist/，含 models/、vendor/ 和测试
 krea/                     推理后端、独立 Python 依赖、配置与测试
   scripts/server.py       HTTP 上传、流式输入、状态与逐帧下载
-  scripts/resident_worker.py  四卡模型常驻与会话调度
+  scripts/resident_worker.py  双卡／四卡模型常驻与会话调度
   scripts/render.py       Depth/Canny、可选参考图、分块推理与帧输出
   scripts/attention_tp.py 注意力及 KV cache 多卡并行
   scripts/krea_ffn_parallel.py  FFN 多卡并行

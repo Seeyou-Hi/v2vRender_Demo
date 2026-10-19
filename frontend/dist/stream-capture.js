@@ -30,7 +30,7 @@ export function installStreamCapture(context) {
       resources = createCaptureResources(640, 384);
       const result = await context.backend.openStream(options); opened = true;
       options.inputFormat = result.input_format || 'rgb24';
-      const controls = Array.from(document.querySelectorAll('#record-video,#demo-record,#capture-data,#physics-enabled,#solver-kind,#gripper-kind,#item-kind,#item-style,#demo-mode,#demo-exit,#demo-replay,#backend-enabled,#backend-kind,#backend-variant,#backend-prompt,#stream-release-upload,#record-view,#wrist-arm,#reference-prepare,#reference-file,#backend-reference-enabled'));
+      const controls = Array.from(document.querySelectorAll('#record-video,#demo-record,#capture-data,#physics-enabled,#solver-kind,#gripper-kind,#item-kind,#item-style,#demo-mode,#demo-exit,#demo-replay,#backend-enabled,#backend-kind,#backend-variant,#backend-prompt,#stream-release-upload,#record-view,#wrist-arm,#reference-stream-start,#reference-prepare,#reference-file,#backend-reference-enabled'));
       const saved = controls.map(el => [el, el.disabled]); controls.forEach(el => { el.disabled = true; });
       session = { resources, saved, options, frames: [], count: 0, first: true, last: -Infinity, capture: null, closing: false, view, wristArm, maxFrames: result.max_frames || 4800 };
       session.sender = new StreamSender(context.backend, error => { stop(error); });

@@ -20,7 +20,7 @@ Maintain exact frame-by-frame alignment with the source video. All robotic movem
 <div class="backend-options"><label>高质量参考图 <input id="reference-file" type="file" accept="image/png,image/jpeg"></label><label><input id="backend-reference-enabled" type="checkbox">流式渲染使用参考图</label></div>
 <p id="reference-status" class="mini-note" role="status">先导出原始首帧，用 AI 改善材质与光照，保持几何布局和 5:3 比例，再选择生成的 PNG/JPEG。参考图仅在首块注入；启用后启动会重置场景并使用固定 ext1。</p>
 <img id="reference-preview" alt="已选择的首帧参考图" hidden style="max-width:320px;width:100%;height:auto">
-<p class="mini-note">自动录制模式在停止后提交完整视频。流式模式边操作边发送：首块 9 帧，后续每块 12 帧，640 × 384、5 fps 输入；模型加载与生成存在延迟。队列满时暂停仿真，等后端腾出空间。</p><div class="backend-options"><button id="stream-start">开始流式渲染</button><span id="stream-status" role="status">单视角 · 使用上方控制方式与场景描述 · 最多 4800 帧</span></div>
+<p class="mini-note">自动录制模式在停止后提交完整视频。流式模式边操作边发送：首块 9 帧，后续每块 12 帧，640 × 384、5 fps 输入；模型加载与生成存在延迟。队列满时暂停仿真，等后端腾出空间。</p><div class="backend-options"><button id="stream-start">开始流式渲染</button><button id="reference-stream-start">使用参考图流式渲染</button><span id="stream-status" role="status">单视角 · 使用上方控制方式与场景描述 · 最多 4800 帧</span></div>
 
 <div class="backend-options"><span id="backend-status" role="status" aria-live="polite">未开启自动渲染</span><button id="backend-retry" hidden>重新提交</button><select id="backend-chunk" aria-label="生成的视频分块" hidden></select><button id="backend-full" hidden>播放完整视频</button><a id="backend-download" hidden download>下载写实视频</a></div>
 

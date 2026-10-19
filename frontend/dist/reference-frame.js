@@ -31,13 +31,12 @@ export function installReferenceFrame(context) {
     } catch (error) { status.textContent = `导出失败：${error.message}`; }
     finally { resources?.dispose(); restore(); }
   };
-  input.onchange = async () => {
+  async function selectReference(file) {
     if (!available()) { input.value = ''; status.textContent = '请结束当前任务后再更换参考图'; return; }
-    const file = input.files?.[0];
     context.backend.setReference(null); enabled.checked = false;
     preview.hidden = true;
     if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = null; }
-    if (!file) { status.textContent = '未选择参考图'; return; }
+    if (!file) { status.textContent = '未选择参考图'; return false; }
     const start = $('stream-start'), savedDisabled = start.disabled;
     start.disabled = true; input.disabled = true; enabled.disabled = true;
     try {
@@ -49,7 +48,31 @@ export function installReferenceFrame(context) {
       context.backend.setReference(file); enabled.checked = true;
       previewURL = URL.createObjectURL(file); preview.src = previewURL; preview.hidden = false;
       status.textContent = `参考图：${file.name}。启用时，开始流式渲染会重置到 ext1 初始场景；请保持导出时的物品和夹爪配置。`;
-    } catch (error) { input.value = ''; status.textContent = error.message; }
+      return true;
+    } catch (error) { input.value = ''; status.textContent = error.message; return false; }
     finally { start.disabled = savedDisabled; input.disabled = false; enabled.disabled = false; }
+  }
+  input.onchange = () => selectReference(input.files?.[0]);
+  const preset = $('reference-stream-start');
+  if (preset) preset.onclick = async () => {
+    if (!available()) { status.textContent = '请先结束当前采集或渲染'; return; }
+    const start = $('stream-start'), disabled = start.disabled;
+    preset.disabled = true; start.disabled = true; input.disabled = true;
+    try {
+      if (!context.backend.settings?.().referenceFile) {
+        status.textContent = '正在读取服务器上的写实参考图…';
+        const response = await fetch(new URL('./references/ext1-reference-photoreal.png', import.meta.url));
+        if (!response.ok) throw Error(`参考图读取失败：${response.status}`);
+        const file = new File([await response.blob()], 'ext1-reference-photoreal.png', {type:'image/png'});
+        if (!await selectReference(file)) return;
+      }
+      enabled.checked = true;
+      // Let the stream controller snapshot enabled controls before it locks them.
+      preset.disabled = false; start.disabled = disabled; input.disabled = false;
+      await start.onclick();
+    } catch (error) { status.textContent = error.message; }
+    finally {
+      if (!context.backend.isBusy()) { preset.disabled = false; start.disabled = disabled; input.disabled = false; }
+    }
   };
 }
