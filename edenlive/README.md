@@ -14,7 +14,7 @@ web/                      当前左右双栏前端与开始/停止按钮
 simulator/                完整模拟器、真实模型/纹理和vendor依赖
 games/                   三个模式的注册配置、固定提示词和首帧
 configs/                  写实首帧及来源说明
-third_party/EdenLive/      完整推理源码快照、许可证及上游文档
+third_party/EdenLive/      完整推理源码快照、官方离线样例输入、许可证及上游文档
 models/download-manifest.json  23个必需模型文件的固定版本、大小与哈希
 versions.json             代码/权重/环境版本与LightX2V状态
 runs/ logs/ runtime/ cache/   运行时自动创建，不提交Git

@@ -3,13 +3,13 @@
   "files": [
     {
       "path": ".gitignore",
-      "size": 552,
-      "sha256": "207e62910512d9d13e4d9cd7159ba7d65dce7ecba4eb3a75a1dd9768db66235e"
+      "size": 608,
+      "sha256": "db597578a2a95a3bbc5c060d41bec37c4296cbe4b10a23c7ddf37dd46e0b7d51"
     },
     {
       "path": "README.md",
-      "size": 10138,
-      "sha256": "b4f2c728461839b13f5ac9b42eb9c262afdc084d9c89d1801404af2c4572cc4a"
+      "size": 10165,
+      "sha256": "de5da1f07e29653ad19d7cb06017d262bb82b090bd6e99791c7a996e0f3f0669"
     },
     {
       "path": "THIRD_PARTY.md",
@@ -1257,6 +1257,11 @@
       "sha256": "c27af323963d64ec0d346c7fe273e6e0cbc93a33ef03a34f79f4bcbc4d868f43"
     },
     {
+      "path": "third_party/EdenLive/examples/samples/cryo-crossing/recording.mp4",
+      "size": 3870059,
+      "sha256": "433b9ce4eaff103f6c18de8430652249fc7d6919dbbb08bf9f8f7e29a0d1037e"
+    },
+    {
       "path": "third_party/EdenLive/examples/samples/manifest.csv",
       "size": 1477,
       "sha256": "5993d1c10b0599b812eb8385b7c78e10cfc8874950189d33e933da5086fbe565"
@@ -1280,6 +1285,11 @@
       "path": "third_party/EdenLive/examples/samples/pulse-skirmish/prompts.txt",
       "size": 2388,
       "sha256": "ca82e702009bc229fb11ebe4a57929a706e75238b08019be51c7e30ea73e9d37"
+    },
+    {
+      "path": "third_party/EdenLive/examples/samples/pulse-skirmish/recording.mp4",
+      "size": 5175534,
+      "sha256": "1fb6085c3229ff26f10132dd5a20641fd1383be72d8b5a22ce760337626baf9e"
     },
     {
       "path": "third_party/EdenLive/pyproject.toml",

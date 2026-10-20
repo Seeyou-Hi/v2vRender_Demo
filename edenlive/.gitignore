@@ -24,3 +24,4 @@
 !/third_party/EdenLive/edenlive/models/**
 !/third_party/EdenLive/edenlive/data/
 !/third_party/EdenLive/edenlive/data/**
+!/third_party/EdenLive/examples/samples/*/recording.mp4
