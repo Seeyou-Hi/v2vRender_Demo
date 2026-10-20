@@ -1,0 +1,14 @@
+--- a/tools/convert/quant/quant.py
++++ b/tools/convert/quant/quant.py
+@@ -1,7 +1,10 @@
+ from abc import ABCMeta
+ 
+ import torch
+-from qtorch.quant import float_quantize
++def float_quantize(*args, **kwargs):
++    # INT8 ConvRot does not use qtorch; compile its extensions only when requested.
++    from qtorch.quant import float_quantize as implementation
++    return implementation(*args, **kwargs)
+ 
+ from lightx2v.utils.registry_factory import CONVERT_WEIGHT_REGISTER
+ 

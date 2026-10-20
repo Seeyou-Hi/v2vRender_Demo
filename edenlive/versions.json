@@ -7,5 +7,10 @@
   "torch": "2.11.0+cu128",
   "torchvision": "0.26.0+cu128",
   "lightx2v_candidate_commit": "d2d7424219abdc01b5722e7768e584bc96a5b418",
-  "lightx2v_integrated": false
+  "lightx2v_integrated": true,
+  "lightx2v_commit": "d2d7424219abdc01b5722e7768e584bc96a5b418",
+  "lightx2v_entrypoint": "lightx2v/start.sh",
+  "lightx2v_profile": "a800-int8-dual-projection-graph",
+  "lightx2v_cards": 2,
+  "lightx2v_migration_gpu_revalidated": false
 }

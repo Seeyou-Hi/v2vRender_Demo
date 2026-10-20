@@ -1,0 +1,143 @@
+{
+  "phase_comparison": [
+    {
+      "name": "pty-sync",
+      "chunks": 348,
+      "model_fps": 18.44359098477303,
+      "actual_decoded_fps": 16.86150323323036,
+      "peak_torch_rank0_gb": 32.518770176
+    },
+    {
+      "name": "copy-overlap",
+      "chunks": 214,
+      "model_fps": 18.51801249156989,
+      "actual_decoded_fps": 17.117434104905282,
+      "peak_torch_rank0_gb": 32.518770176
+    },
+    {
+      "name": "tensor-broadcast",
+      "chunks": 90,
+      "model_fps": 18.496062235315122,
+      "actual_decoded_fps": 17.180105780368468,
+      "peak_torch_rank0_gb": 32.526880256
+    },
+    {
+      "name": "async-log",
+      "chunks": 90,
+      "model_fps": 18.562116930976863,
+      "actual_decoded_fps": 17.248304939786614,
+      "peak_torch_rank0_gb": 32.526880256
+    },
+    {
+      "name": "capture-margin",
+      "chunks": 78,
+      "model_fps": 18.882049305681907,
+      "actual_decoded_fps": 18.150983719330313,
+      "peak_torch_rank0_gb": 32.526880256
+    }
+  ],
+  "display_fps": {
+    "mean": 18.386293868791466,
+    "p50": 18.05067384480663,
+    "p95": 19,
+    "n": 8
+  },
+  "latency_ms": {
+    "send_to_display_ms": {
+      "mean": 86.94813295889541,
+      "p50": 85.81421338021755,
+      "p95": 109.29660685360432,
+      "n": 819
+    },
+    "capture_to_display_ms": {
+      "mean": 1433.912959547943,
+      "p50": 1428.0731696635485,
+      "p95": 1501.6270522028208,
+      "n": 819
+    },
+    "model_to_display_ms": {
+      "mean": 411.8415357520001,
+      "p50": 404.5890811830759,
+      "p95": 699.1912685334682,
+      "n": 819
+    }
+  },
+  "action": {
+    "sequence": 210,
+    "firstConditionedDisplayMs": 1532.6999998092651,
+    "inputSequence": 210,
+    "clockEstimateMs": 1461.3175243139267
+  },
+  "client_renderer": "ANGLE (NVIDIA Corporation, NVIDIA A800 80GB PCIe/PCIe/SSE2, OpenGL ES 3.2)",
+  "server_renderer": {
+    "type": "hello",
+    "proxy": "rgb",
+    "renderer": "ANGLE (NVIDIA Corporation, NVIDIA A800-SXM4-80GB/PCIe/SSE2, OpenGL ES 3.2)",
+    "width": 1280,
+    "height": 704,
+    "hardware": true,
+    "game_options": {
+      "kind": "mechanical_arm"
+    },
+    "first_chunk": 9,
+    "chunk": 12,
+    "fps": 24
+  },
+  "rtp": [
+    {
+      "id": "IT01V3790629051",
+      "timestamp": 1792493603552.162,
+      "type": "inbound-rtp",
+      "ssrc": 3790629051,
+      "kind": "video",
+      "trackId": "DEPRECATED_TI1",
+      "transportId": "T01",
+      "codecId": "CIT01_96",
+      "mediaType": "video",
+      "jitter": 0.003,
+      "packetsLost": 0,
+      "trackIdentifier": "6abee3b0-3953-4fca-9f35-516b7152cf15",
+      "mid": "0",
+      "packetsReceived": 4168,
+      "bytesReceived": 4857286,
+      "headerBytesReceived": 100032,
+      "lastPacketReceivedTimestamp": 1792493603519,
+      "jitterBufferDelay": 50.266,
+      "jitterBufferEmittedCount": 913,
+      "framesReceived": 915,
+      "frameWidth": 1280,
+      "frameHeight": 704,
+      "framesPerSecond": 17,
+      "framesDecoded": 914,
+      "keyFramesDecoded": 20,
+      "framesDropped": 0,
+      "totalDecodeTime": 6.151619999999999,
+      "totalProcessingDelay": 37.354611,
+      "totalAssemblyTime": 0.325631,
+      "framesAssembledFromMultiplePackets": 867,
+      "totalInterFrameDelay": 54.316999999999794,
+      "totalSquaredInterFrameDelay": 13.931354999999844,
+      "pauseCount": 0,
+      "totalPausesDuration": 0,
+      "freezeCount": 3,
+      "totalFreezesDuration": 4.028,
+      "firCount": 0,
+      "pliCount": 1,
+      "nackCount": 0,
+      "qpSum": 41405
+    }
+  ],
+  "service": {
+    "supervisor_pid": 108515,
+    "ssh_pid": 108525,
+    "turn_pid": 108519,
+    "status": "allocated",
+    "ports": [
+      18510,
+      24508
+    ],
+    "started": 1792493523.578461,
+    "job_id": "14843",
+    "job_directory": "/home/test01/siyuheng/edenlive/deployments/robotarm_lightx2v_20261020/runtime/job_14843"
+  }
+}

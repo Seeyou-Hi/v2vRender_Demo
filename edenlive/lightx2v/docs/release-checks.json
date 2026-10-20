@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-20",
+  "source": "C3 robotarm_lightx2v_20261020 with portable path and launch adaptation",
+  "source_snapshot_files": 1184,
+  "simulator_files_sha256_equal_to_current_C3": 145,
+  "python_3_10_syntax": true,
+  "shell_syntax": true,
+  "client_js_syntax": true,
+  "model_path_override_check": true,
+  "start_dry_run": true,
+  "arm_semantics_regression": true,
+  "C3_photo_rgb_after_cover_fix_frames": ">120",
+  "C3_rgb_after_stop_restart_frames": ">100",
+  "fresh_server_gpu_validation": false,
+  "secrets_and_weights_included": false
+}

@@ -1,0 +1,11 @@
+--- a/lightx2v/models/runners/wan/edenlive_runner.py
++++ b/lightx2v/models/runners/wan/edenlive_runner.py
+@@ -73,7 +73,7 @@
+             self.config["model_path"],
+             self.config["proxy_resize_mode"],
+             use_cuda_graph=self.config.get("use_cuda_graph", False),
+-            attention_type=proxy_attention,
++            attention_type=self.config.get("proxy_attention_type", proxy_attention),
+             quantized_ckpt=self.config.get("proxy_quantized_ckpt"),
+         )
+ 

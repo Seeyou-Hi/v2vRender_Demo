@@ -1,0 +1,11 @@
+--- a/lightx2v/models/networks/wan/infer/edenlive/transformer_infer.py
++++ b/lightx2v/models/networks/wan/infer/edenlive/transformer_infer.py
+@@ -80,7 +80,7 @@
+             context = context[self.image_context_len :]
+         normalized = phase.norm3.apply(x)
+         q = phase.cross_attn_norm_q.apply(phase.cross_attn_q.apply(normalized)).view(-1, self.num_heads, self.head_dim)
+-        prepared_kv = cross_kv if cross_kv is not None and len(cross_kv) == 4 else None
++        prepared_kv = cross_kv if cross_kv is not None and hasattr(phase.cross_attn_1, "apply_prepared") else None
+         if prepared_kv is None:
+             k, v = self.get_cross_kv(phase, context) if cross_kv is None else cross_kv
+         if segments is None:

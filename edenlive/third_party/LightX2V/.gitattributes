@@ -1,0 +1,2 @@
+# Preserve the deployed upstream documentation's CRLF bytes.
+lightx2v_platform/README*.md whitespace=cr-at-eol

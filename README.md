@@ -4,9 +4,9 @@
 
 仓库现在包含独立的 [EdenLive 前后端](edenlive/README.md)；其余本页说明仍对应原有 Krea。两个后端使用各自环境与启动入口。模型权重和 Python 环境需另行准备。前端模型素材、纹理、浏览器依赖、Scope 推理源码、多卡优化及前后端代理均已纳入 Git，不需要再下载其他项目代码或运行前端构建。
 
-## EdenLive 单卡实时版本
+## EdenLive 实时版本：原生单卡 / LightX2V 双卡
 
-完整代码、机械臂资产、模型清单、安装和 WebRTC/SSH 访问说明见 [edenlive/README.md](edenlive/README.md)。安装运行使用 `bash edenlive/install.sh`、模型下载校验脚本和 `bash edenlive/start.sh`，不会使用根目录的 Krea 启动器。未完成的官方 LightX2V 优化列在 [edenlive/TODO.md](edenlive/TODO.md)。
+完整代码、机械臂资产、模型清单、安装和 WebRTC/SSH 访问说明见 [edenlive/README.md](edenlive/README.md)。安装运行使用 `bash edenlive/install.sh`、模型下载校验脚本和 `bash edenlive/start.sh`，不会使用根目录的 Krea 启动器。新增的 **LightX2V 双 A800 加速版**、独立安装/权重准备/启动方法见 [edenlive/lightx2v/README.md](edenlive/lightx2v/README.md)。包含当前双卡前后端与通信优化；剩余延迟、色漂及稳定性问题列在 [edenlive/TODO.md](edenlive/TODO.md)。
 
 ## 目录
 

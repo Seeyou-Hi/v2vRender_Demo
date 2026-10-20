@@ -1,0 +1,56 @@
+EdenLive / LightX2V 双 A800 低延迟机械臂实时服务
+
+目录：/home/test01/siyuheng/edenlive/deployments/robotarm_lightx2v_20261020
+这是 EdenLive 固定权重 + 官方 LightX2V AR 算子/缓存/TAE 的实时输入适配。
+HTTP/信令及 H.264/RTP 视频使用 aiortc；机械臂资产、控制、IK、碰撞和抓放逻辑只读复用原项目副本。
+旧 robotarm_native_20261020、MG4 和 Krea 的代码/端口未被覆盖。
+
+启动（heart）：
+bash /home/test01/siyuheng/edenlive/deployments/robotarm_lightx2v_20261020/scripts/launch.sh
+查看：logs/supervisor.json（starting_or_queued 表示启动或排队），runtime/job_<当前ID>/app.log
+停止整个后端并释放本部署作业：
+python3 /home/test01/siyuheng/edenlive/deployments/robotarm_lightx2v_20261020/scripts/stop.py
+页面“停止生成”仅停止本轮，保留已载入模型；“开始 / 重启”重建本轮缓存与采集器。
+
+Windows PowerShell / Linux 均可用的一行转发：
+ssh -p 22001 -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18510:127.0.0.1:18510 -L 127.0.0.1:24508:127.0.0.1:24508 test01@47.99.114.202
+保持窗口打开；浏览器访问 http://127.0.0.1:18510/ ，点击“开始 / 重启”。
+需同时转发 HTTP 和 TURN/TCP；媒体链路已实际连接并解码，不只是网页能打开。
+
+部署限制：
+平台 gpu-shell -g 2 -c 16 -m 160G -t 01:00:00；不是无限常驻。
+只使用 Slurm 分配的两张卡，在 gpu_isolated_dual.py 的独立网络命名空间运行。
+heart 上的 SSH stdio 桥与 TURN 连接作业内服务；没有解除网络或设备隔离。
+私钥、TURN 凭据只在 configs/ 受保护文件中；源码归档不能包含这些文件。
+
+环境与模型：
+环境 /home/test01/siyuheng/edenlive/env-lightx2v；新增 aiortc 1.15.0 依赖由 CPU 作业从现有离线 wheels 安装。
+原权重 models/EdenLive；转换 models/EdenLive-LightX2V；沿用已验证 INT8 ConvRot 文件。
+选择部署 lightx2v_20261020/configs/a800-int8-dual-projection-graph.json。
+该优化依赖同部署 scripts 下 a800_attention.py、a800_projection.py、dual_projection.py、dual_graph.py。
+未使用 A800 上不安全的 Sage CUDA Graph 配置。
+固定版本、转换清单、哈希与先前验证见 results/lightx2v_20261020/dual-optimization/。
+
+通信优化：
+1. 平台交互 PTY 通道 + raw 模式 + ready 握手，消除 gpu-run 普通 stdio 的约一秒缓冲。
+2. 原生 WebRTC H.264；只传生成视频，左侧用权威物理状态驱动原版模拟器。
+3. 最多一批输入预采；按实测处理时间安排采集，不堆积旧输入。
+4. 新结果替换尚未发送的旧结果，最多 12 帧待发；浏览器 jitterBufferTarget/playoutDelayHint 设为零（支持时）。
+5. RGB 张量直接 NCCL 广播；只有小型控制元数据走对象广播。
+6. RGB 转换/显存拷贝在有界输出 worker 中处理；预热捕获期等待拷贝完成。
+7. 共享存储日志由有界后台队列写入，不阻塞推理和 WebRTC 事件循环。
+
+测量口径：
+模型 FPS：DINO/必要文本编码 + 4 步 DiT + clean KV commit + TAE，12/耗时。
+解码产出 FPS：连续实际解码完成的帧数/墙钟时间，包含采集等待与调度传递开销。
+浏览器 FPS：requestVideoFrameCallback 实际显示回调，不用视频标称 24 FPS。
+时延：原始采集 monotonic -> 模型完成 -> 实际 RTP 首包 -> 浏览器 rVFC。
+通过真实 RTP 时间戳与 data channel 元数据匹配，ping/pong 估计时钟偏移；有约半个最小 RTT 的单向估计误差。
+按键测试：首次显示带该控制序号或后继序号的条件帧；不等于视觉上已经成功完成抓取。
+浏览器记录：logs/browser.jsonl；逐 chunk：logs/chunks.jsonl；当前快照：logs/realtime-performance.json。
+日志正常约一秒刷盘；若磁盘异常导致有界队列丢日志，会报告 log_dropped。
+
+质量限制：
+约三分钟 RGB 首帧连续运行中观察到明显颜色漂移；尚未区分量化、实时适配/缓存和基模的贡献。
+不能将本次通信与速度验证称为长时质量验收通过。首 30 秒结构较稳定，也不代表抓放像素结果完全符合物理状态。
+测试截图、浏览器测量、实收视频和报告均保留在 results/communication_20261020/。

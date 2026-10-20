@@ -25,3 +25,8 @@
 !/third_party/EdenLive/edenlive/data/
 !/third_party/EdenLive/edenlive/data/**
 !/third_party/EdenLive/examples/samples/*/recording.mp4
+
+!/third_party/LightX2V/lightx2v/models/
+!/third_party/LightX2V/lightx2v/models/**
+!/third_party/LightX2V/lightx2v/data/
+!/third_party/LightX2V/lightx2v/data/**

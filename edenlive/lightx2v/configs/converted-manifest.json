@@ -1,0 +1,123 @@
+{
+  "source_weights_revision": "de40b28f3f6eb6a0f12bb3d3967ca35578273713",
+  "lightx2v_commit": "d2d7424219abdc01b5722e7768e584bc96a5b418",
+  "seconds": 25.723336458206177,
+  "converted": [
+    "dit-5b",
+    "umt5/text_encoder"
+  ],
+  "reused_assets": [
+    "vae-5b",
+    "decoder-5b",
+    "vision-encoder",
+    "umt5/tokenizer",
+    "scheduler-5b"
+  ],
+  "files": [
+    {
+      "path": "decoder-5b/lighttaew2_2.pth",
+      "size": 45712042,
+      "sha256": "e62630fe8cf2a8a3ba1b23e0361e87d8128eed79fbf46e6c4287e33b7be2bd82"
+    },
+    {
+      "path": "dit-5b/config.json",
+      "size": 466,
+      "sha256": "edae11676284d22114e6613c12a1e67fdc9b09ef7ab45a13ba9786510d574d2f"
+    },
+    {
+      "path": "dit-5b/diffusion_pytorch_model.safetensors",
+      "size": 10024825504,
+      "sha256": "e57a8abaaf2057f5c43e536ac8186f249e169473222d22f27d299e26894fc2b5"
+    },
+    {
+      "path": "scheduler-5b/scheduler_config.json",
+      "size": 487,
+      "sha256": "ee95553e49d43304e86eb83011b928c9f07f9aa1388347195b69a170aaef23a8"
+    },
+    {
+      "path": "umt5/text_encoder/config.json",
+      "size": 855,
+      "sha256": "a2bcb24699f6c009a2427432bdd483ef8b2b42a712abc9503759cdc77d171f07"
+    },
+    {
+      "path": "umt5/text_encoder/model.safetensors",
+      "size": 11361845432,
+      "sha256": "d92de679881d38af9c89eff7bb1b6d6c9d96cb2b69831e4027e9ecabdd38eb23"
+    },
+    {
+      "path": "umt5/tokenizer/special_tokens_map.json",
+      "size": 7079,
+      "sha256": "456b58fd240a06c743a7c2cf8008bec501240d68ebd1fc4018ea569505fea270"
+    },
+    {
+      "path": "umt5/tokenizer/spiece.model",
+      "size": 4548313,
+      "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458"
+    },
+    {
+      "path": "umt5/tokenizer/tokenizer.json",
+      "size": 16837459,
+      "sha256": "20a46ac256746594ed7e1e3ef733b83fbc5a6f0922aa7480eda961743de080ef"
+    },
+    {
+      "path": "umt5/tokenizer/tokenizer_config.json",
+      "size": 61758,
+      "sha256": "1d8d2a216bf8e70ac15b7ddcea566c4dd0433c024b39a58ca5e4c66bd78defbd"
+    },
+    {
+      "path": "vae-5b/Wan2.2_VAE.pth",
+      "size": 2818839170,
+      "sha256": "20eb789667fa5e60e7516bf509512f6cb61f01b0aa0695eadaea930c13892b36"
+    },
+    {
+      "path": "vae-5b/config.json",
+      "size": 1674,
+      "sha256": "dbb1cb59373b2816a7c58d8ac3e602cff400a5f52f2f784dd94f60aba493ad92"
+    },
+    {
+      "path": "vision-encoder/LICENSE.md",
+      "size": 7503,
+      "sha256": "25d122eb8f5b880fd23c736fb6ea8018ee45c12237e00b8a86d14c653904999e"
+    },
+    {
+      "path": "vision-encoder/NOTICE.md",
+      "size": 514,
+      "sha256": "6c4065c7cab1597e9d77f2cf2ac1f2eb55c7ebfa8bbc4ef9036b64f8c251317d"
+    },
+    {
+      "path": "vision-encoder/backbone/LICENSE.md",
+      "size": 7503,
+      "sha256": "25d122eb8f5b880fd23c736fb6ea8018ee45c12237e00b8a86d14c653904999e"
+    },
+    {
+      "path": "vision-encoder/backbone/README.md",
+      "size": 14520,
+      "sha256": "5395522a8a611d0578b6036f47e60445381ee4b2c7508f0e93d9e4c1e876fa63"
+    },
+    {
+      "path": "vision-encoder/backbone/config.json",
+      "size": 745,
+      "sha256": "135ecd23e34a70b6fbed8b083fdecb319b7e3a54e3d849258bbe4ddcf1783bb5"
+    },
+    {
+      "path": "vision-encoder/backbone/configuration.json",
+      "size": 74,
+      "sha256": "2e298ee07ca76e112e8cb5524061000871a464b0088d14becb7d0564215a9380"
+    },
+    {
+      "path": "vision-encoder/backbone/model.safetensors",
+      "size": 1212559808,
+      "sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179"
+    },
+    {
+      "path": "vision-encoder/backbone/preprocessor_config.json",
+      "size": 585,
+      "sha256": "960c41d1f3a7778b936365769a2d90550b318a6c0a53a0296957adacfe5e0dd7"
+    },
+    {
+      "path": "vision-encoder/projection.safetensors",
+      "size": 1220969504,
+      "sha256": "cfa99b6b80d525bde4d8f000be4918a3bb03eefde2f7caeb3604307b36533c07"
+    }
+  ]
+}
