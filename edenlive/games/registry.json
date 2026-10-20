@@ -1,0 +1,37 @@
+{
+  "games": [
+    {
+      "slug": "robotarm",
+      "title": "Robot arm",
+      "description": "Two-arm control experiment",
+      "prompt": "Photorealistic fixed-camera footage in a real industrial robotics laboratory. Exactly two UR5 arms. Each has one continuous chain: fixed base, shoulder, rigid upper arm, elbow, rigid forearm, three wrist joints, and exactly one wrist-mounted two-finger gripper. Keep all six rotary joints connected, link lengths unchanged, and both fingers attached to their gripper. Match the current proxy silhouette, joint pose, wrist height and orientation. Brushed steel links, blue joint covers, black articulated grippers. One short red-gold aluminum can with silver rims and flat lid; one taller red plastic bottle with narrow neck and red cap. Varnished wood tabletop with blue and orange pads. Preserve camera, object count, positions, contacts and motion. Maintain the first frame's laboratory, natural light, metal reflections, glossy plastic, wood grain and contact shadows. No extra objects or invented actions.",
+      "cover": "cover.png",
+      "entry": "index.html",
+      "controls": [
+        "Use original arm control panel"
+      ]
+    },
+    {
+      "slug": "robotarm-photoreal",
+      "title": "Robot arm — photoreal initial condition",
+      "description": "Experimental generated photoreal first frame + semantic proxy; geometry alignment approximate",
+      "prompt": "Photorealistic fixed-camera footage in a real industrial robotics laboratory. Exactly two UR5 arms. Each has one continuous chain: fixed base, shoulder, rigid upper arm, elbow, rigid forearm, three wrist joints, and exactly one wrist-mounted two-finger gripper. Keep all six rotary joints connected, link lengths unchanged, and both fingers attached to their gripper. Match the current proxy silhouette, joint pose, wrist height and orientation. Brushed steel links, blue joint covers, black articulated grippers. One short red-gold aluminum can with silver rims and flat lid; one taller red plastic bottle with narrow neck and red cap. Varnished wood tabletop with blue and orange pads. Preserve camera, object count, positions, contacts and motion. Maintain the first frame's laboratory, natural light, metal reflections, glossy plastic, wood grain and contact shadows. No extra objects or invented actions.",
+      "cover": "cover.png",
+      "entry": "index.html",
+      "controls": [
+        "Use original arm control panel"
+      ]
+    },
+    {
+      "slug": "robotarm-photoreal-rgb",
+      "title": "Robot arm — photoreal + RGB",
+      "description": "Same generated initial condition; full RGB proxy for comparison",
+      "prompt": "Photorealistic fixed-camera footage in a real industrial robotics laboratory. Exactly two UR5 arms. Each has one continuous chain: fixed base, shoulder, rigid upper arm, elbow, rigid forearm, three wrist joints, and exactly one wrist-mounted two-finger gripper. Keep all six rotary joints connected, link lengths unchanged, and both fingers attached to their gripper. Match the current proxy silhouette, joint pose, wrist height and orientation. Brushed steel links, blue joint covers, black articulated grippers. One short red-gold aluminum can with silver rims and flat lid; one taller red plastic bottle with narrow neck and red cap. Varnished wood tabletop with blue and orange pads. Preserve camera, object count, positions, contacts and motion. Maintain the first frame's laboratory, natural light, metal reflections, glossy plastic, wood grain and contact shadows. No extra objects or invented actions.",
+      "cover": "cover.png",
+      "entry": "index.html",
+      "controls": [
+        "Use original arm control panel"
+      ]
+    }
+  ]
+}

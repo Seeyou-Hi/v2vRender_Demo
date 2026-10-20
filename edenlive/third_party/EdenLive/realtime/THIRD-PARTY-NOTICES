@@ -1,0 +1,135 @@
+Modified by Vast AI for EdenLive. Copyright (c) 2026 Vast AI.
+
+NVIDIA FlashDreams — Third-Party Notices
+Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This file identifies third-party software components that are included
+in, redistributed with, depended upon by, or otherwise present in this
+repository, and reproduces the attribution notices required by the
+corresponding upstream licenses.
+
+The primary FlashDreams source is licensed under the Apache License,
+Version 2.0 — see LICENSE at the repository root. Per-file SPDX
+identifiers and the REUSE 3.3 manifest at REUSE.toml are the
+machine-readable counterparts of the information below. License texts for
+redistributed source are provided under LICENSES/. Runtime-only dependency
+licenses can be obtained from the linked upstream projects.
+
+Most dependencies are consumed unmodified at runtime through Python's
+import system (i.e. dynamic linking via the interpreter); their source
+is not redistributed in this repository. The licenses named below are
+SPDX identifiers; the full text of each license is available from the
+upstream project's URL. Source-level redistributions (third-party source
+code physically present in this repository) are disclosed in the
+"Source-level redistributions" section at the end of this file.
+
+================================================================================
+Direct runtime dependencies
+================================================================================
+
+boto3                  Apache-2.0   https://github.com/boto/boto3
+botocore               Apache-2.0   https://github.com/boto/botocore
+einops                 MIT          https://github.com/arogozhnikov/einops
+ftfy                   Apache-2.0   https://github.com/rspeer/python-ftfy
+huggingface-hub        Apache-2.0   https://github.com/huggingface/huggingface_hub
+imgui-bundle           MIT          https://github.com/pthom/imgui_bundle
+loguru                 MIT          https://github.com/Delgan/loguru
+numpy                  BSD-3-Clause https://github.com/numpy/numpy
+nvidia-ml-py           BSD-3-Clause https://pypi.org/project/nvidia-ml-py/
+psutil                 BSD-3-Clause https://github.com/giampaolo/psutil
+safetensors            Apache-2.0   https://github.com/huggingface/safetensors
+slangpy                Apache-2.0   https://github.com/shader-slang/slangpy
+torch                  BSD-3-Clause https://pytorch.org
+torchvision            BSD-3-Clause https://github.com/pytorch/vision
+tqdm                   MIT, MPL-2.0 https://github.com/tqdm/tqdm
+transformers           Apache-2.0   https://github.com/huggingface/transformers
+transformer-engine     Apache-2.0   https://github.com/NVIDIA/TransformerEngine
+triton-windows         MIT          https://github.com/woct0rdho/triton-windows
+
+================================================================================
+Reference architectures
+================================================================================
+
+Wan 2.1 / Wan 2.2      Apache-2.0   https://github.com/Wan-Video/Wan2.1
+    FlashDreams's Wan integrations implement the architectures published by the
+    Wan-Video team. Model weights are downloaded from upstream at runtime
+    and are not redistributed in this repository.
+
+================================================================================
+Optional post-processing: RTX Video Super Resolution
+================================================================================
+
+nvidia-vfx             LicenseRef-NvidiaProprietary
+                                    https://pypi.org/project/nvidia-vfx/
+
+The ``rtx-postprocess`` extra installs NVIDIA's proprietary Python bindings
+for RTX Video Super Resolution and deblur. It is optional, dynamically loaded
+only when an RTX preset is selected, and is not redistributed as source in
+this repository.
+
+================================================================================
+Eden game2v serving: integrations_v2/eden
+================================================================================
+
+accelerate             Apache-2.0   https://github.com/huggingface/accelerate
+aiohttp                Apache-2.0   https://github.com/aio-libs/aiohttp
+aiortc                 BSD-3-Clause https://github.com/aiortc/aiortc
+av (PyAV)              BSD-3-Clause https://github.com/PyAV-Org/PyAV
+diffusers              Apache-2.0   https://github.com/huggingface/diffusers
+jsonschema             MIT          https://github.com/python-jsonschema/jsonschema
+mediapy                Apache-2.0   https://github.com/google/mediapy
+opencv-python          Apache-2.0   https://github.com/opencv/opencv-python
+peft                   Apache-2.0   https://github.com/huggingface/peft
+playwright             Apache-2.0   https://github.com/microsoft/playwright-python
+scipy                  BSD-3-Clause https://github.com/scipy/scipy
+three (npm)            MIT          https://github.com/mrdoob/three.js
+
+    three.js is installed at deploy time into games/node_modules (git-ignored)
+    and served to the browser by the game renderer; its source is not
+    redistributed in this repository.
+
+Model weights are not part of this repository. They are distributed
+separately and are not uniformly Apache-2.0: the proxy-DINO encoder is
+covered by the DINOv3 License, and the workbench's FLUX.2 [klein]
+first-frame model by the FLUX Non-Commercial License (non-commercial and
+non-production use only; public end-user deployment may require separate
+authorization). The CLIP image encoder originates from LAION CLIP ViT-H/14
+trained using OpenCLIP and retains its MIT license and attribution. See the model
+repository's README for the per-component table.
+
+================================================================================
+Source-level redistributions
+================================================================================
+
+The following third-party source is physically present in this repository
+(not just consumed at runtime). REUSE.toml records the copyright and license
+of each; license texts are reproduced under LICENSES/.
+
+--------------------------------------------------------------------------------
+html-to-image
+--------------------------------------------------------------------------------
+
+Path:     games/host/html-to-image.js
+License:  MIT (see LICENSES/MIT.txt)
+          Copyright (c) 2017-2023 W.Y.
+Upstream: https://github.com/bubkoo/html-to-image
+
+Minified UMD build used by the workbench to capture a game's cover image.
+It carries no inline notice, so REUSE.toml records its copyright and license.
+
+--------------------------------------------------------------------------------
+GameBlocks
+--------------------------------------------------------------------------------
+
+Path:     skills/game-prototype-turbo/assets/{actor-motion,behavior,camera,
+          gameplay,math,user-interface,world}/
+License:  MIT (see LICENSES/MIT.txt)
+          Copyright (c) 2026 Weihao Cheng
+Upstream: https://github.com/xt4d/GameBlocks
+
+The game-prototype-turbo skill builds its browser game prototypes from the
+GameBlocks module library (camera rigs, actor motion, world structure,
+gameplay and UI building blocks). 53 modules are redistributed unmodified and
+18 carry modifications by Vast AI; the remaining files under assets/ are
+Vast AI's own additions. REUSE.toml lists each GameBlocks-derived file
+individually, since the directories mix both.

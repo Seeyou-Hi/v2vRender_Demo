@@ -1,0 +1,164 @@
+{
+  "repo_id": "VAST-AI/EdenLive",
+  "revision": "de40b28f3f6eb6a0f12bb3d3967ca35578273713",
+  "selection": "5B few-step chunk-AR plus offline/realtime required components; no 14B, no 5B bidir, no CLIP, no FLUX",
+  "endpoint": "https://hf-mirror.com",
+  "files": [
+    {
+      "rfilename": "LICENSE",
+      "blobId": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "size": 11358
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "5390b197f85ed7e9207cf86b2cd2183de94b6771",
+      "size": 7052
+    },
+    {
+      "rfilename": "decoder-5b/lighttaew2_2.pth",
+      "blobId": "5466d28ded00ef9c0f589483e7e494fe5e7f30f3",
+      "size": 45712042,
+      "lfs": {
+        "sha256": "e62630fe8cf2a8a3ba1b23e0361e87d8128eed79fbf46e6c4287e33b7be2bd82",
+        "size": 45712042,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "dit-5b/config.json",
+      "blobId": "33ccb29ceb2fdcd82c9dda77029259cb49d7e707",
+      "size": 450
+    },
+    {
+      "rfilename": "dit-5b/diffusion_pytorch_model.safetensors",
+      "blobId": "8807166e89decf340a42ff4649decb80ee882e50",
+      "size": 20049567232,
+      "lfs": {
+        "sha256": "07ac4bbfb038b74a0d7d191b4ea09386d9569e57bb5ad114480a588c509319e6",
+        "size": 20049567232,
+        "pointerSize": 136
+      }
+    },
+    {
+      "rfilename": "scheduler-5b/scheduler_config.json",
+      "blobId": "b01c71c4781f58ded9d6abd9743831514c9338f9",
+      "size": 487
+    },
+    {
+      "rfilename": "umt5/text_encoder/config.json",
+      "blobId": "ab4a73bce055c6e32e66133032dcb3adfb26ee8d",
+      "size": 855
+    },
+    {
+      "rfilename": "umt5/text_encoder/model.safetensors",
+      "blobId": "e86045e3a4ab1c479e22fd310216a7c6e398f085",
+      "size": 11361851224,
+      "lfs": {
+        "sha256": "accacb722db35bffffd823d8a610fe224b5e0a1f624f0e21d5d34efd5455bb7d",
+        "size": 11361851224,
+        "pointerSize": 136
+      }
+    },
+    {
+      "rfilename": "umt5/tokenizer/special_tokens_map.json",
+      "blobId": "2ed25bf989a28d20b5d4b5822fbc24666d12a6f7",
+      "size": 7079
+    },
+    {
+      "rfilename": "umt5/tokenizer/spiece.model",
+      "blobId": "2fe5f347e9f9367585589ae89e997dfbd5cf802c",
+      "size": 4548313,
+      "lfs": {
+        "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458",
+        "size": 4548313,
+        "pointerSize": 132
+      }
+    },
+    {
+      "rfilename": "umt5/tokenizer/tokenizer.json",
+      "blobId": "9c6427ab2f801c942da4ee9740f1a750d3978a3b",
+      "size": 16837459,
+      "lfs": {
+        "sha256": "20a46ac256746594ed7e1e3ef733b83fbc5a6f0922aa7480eda961743de080ef",
+        "size": 16837459,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "umt5/tokenizer/tokenizer_config.json",
+      "blobId": "09d434f9457238f697f4c208aab47f58caa15bfe",
+      "size": 61758
+    },
+    {
+      "rfilename": "vae-5b/Wan2.2_VAE.pth",
+      "blobId": "2264ad59a1f3be73cf56ff0dcf7d0a8e06efe8ed",
+      "size": 2818839170,
+      "lfs": {
+        "sha256": "20eb789667fa5e60e7516bf509512f6cb61f01b0aa0695eadaea930c13892b36",
+        "size": 2818839170,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "vae-5b/config.json",
+      "blobId": "d2379249e30b4e0c2dab0bf5ce54613ac633e45a",
+      "size": 1674
+    },
+    {
+      "rfilename": "vision-encoder/LICENSE.md",
+      "blobId": "f531b1e6b5ab2318957bbf8ad1bda9f800a23e17",
+      "size": 7503
+    },
+    {
+      "rfilename": "vision-encoder/NOTICE.md",
+      "blobId": "a0b0a031aab1d3e4ea331fc59db20978613eef88",
+      "size": 514
+    },
+    {
+      "rfilename": "vision-encoder/backbone/LICENSE.md",
+      "blobId": "f531b1e6b5ab2318957bbf8ad1bda9f800a23e17",
+      "size": 7503
+    },
+    {
+      "rfilename": "vision-encoder/backbone/README.md",
+      "blobId": "fc1b2f193fe95afb9f236810dbea3c3b436399e6",
+      "size": 14520
+    },
+    {
+      "rfilename": "vision-encoder/backbone/config.json",
+      "blobId": "ab2a8b183fd4fd5213e9898a7f499c7c857b1a86",
+      "size": 745
+    },
+    {
+      "rfilename": "vision-encoder/backbone/configuration.json",
+      "blobId": "7dec3e8fb4138a31623b56bbda3970b88133a414",
+      "size": 74
+    },
+    {
+      "rfilename": "vision-encoder/backbone/model.safetensors",
+      "blobId": "5fe30316feaa07b25590197bfad7216e9747863d",
+      "size": 1212559808,
+      "lfs": {
+        "sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+        "size": 1212559808,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "vision-encoder/backbone/preprocessor_config.json",
+      "blobId": "0126173c1ab7b75bbd9102e37de8a56ffe0a012b",
+      "size": 585
+    },
+    {
+      "rfilename": "vision-encoder/projection.safetensors",
+      "blobId": "be5b1dfb0de3915886458c2e180b0f6c61c9a560",
+      "size": 1220969504,
+      "lfs": {
+        "sha256": "cfa99b6b80d525bde4d8f000be4918a3bb03eefde2f7caeb3604307b36533c07",
+        "size": 1220969504,
+        "pointerSize": 135
+      }
+    }
+  ],
+  "total_bytes": 36731006909
+}

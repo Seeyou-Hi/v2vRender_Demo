@@ -1,0 +1,116 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 Vast AI
+# Modified by Vast AI for EdenLive.
+# Installed with pip, not uv: see requirements.txt. The [tool.uv] workspace,
+# index overrides and build-isolation settings that used to live here only
+# applied to `uv sync`, which this deployment does not use. What remains
+# configures the type checker and pytest.
+
+[tool.pyright]
+exclude = ["flashdreams/flashdreams/accelerated/multi_head_attention/triton/**", "flashdreams/flashdreams/accelerated/quantization/triton.py"]
+ignore = ["flashdreams/flashdreams/accelerated/multi_head_attention/triton/**", "flashdreams/flashdreams/accelerated/quantization/triton.py"]
+extraPaths = [
+    "flashdreams",
+    "apps",
+    "apps/cam2v",
+    "integrations_v2",
+    "integrations_v2/eden",
+]
+# For pyright to pickup the correct python.
+venvPath = "."
+venv = ".venv"
+# Mirror the ty rule `invalid-method-override = "ignore"` below.
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+
+[tool.ty.environment]
+python-version = "3.10"
+extra-paths = [
+    "flashdreams",
+    "apps",
+    "apps/cam2v",
+    "integrations_v2",
+    "integrations_v2/eden",
+]
+
+[tool.ty.src]
+# Auto-generated protobuf stubs trigger `conflicting-metaclass` errors due to
+# protobuf's EnumTypeWrapper pattern (known ty limitation).
+exclude = [
+    "**/protos/*pb2*",
+]
+
+[tool.ty.rules]
+# Intentional pattern: integration subclasses override base methods with more specific
+# signatures (violates Liskov but is the established design in this codebase).
+invalid-method-override = "ignore"
+
+[tool.ty.analysis]
+# These packages have no useful type stubs (Triton kernels rewrite their
+# call signatures via ``@triton.jit``) or are unavailable in CI; treat
+# imports as Any.
+replace-imports-with-any = ["flash_attn.**", "transformer_engine.**", "triton.**"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+# The vendored game-authoring skill has its own test entry point and uses
+# sibling test imports; collect only the installed runtime applications here.
+testpaths = ["apps/cam2v/tests", "integrations_v2/eden/tests"]
+norecursedirs = [
+    "parity_check",
+    "parity_check_v2",
+    "baseline_fastvideo",
+    "baseline_lightx2v",
+    "3rdparty",
+]
+markers = [
+    "ci_cpu: CPU-safe test, runs on the CPU CI runner",
+    "ci_gpu: requires GPU or libGL (cv2), runs on the GPU CI runner",
+    "manual: heavy or environment-specific test, opt-in only",
+]
+
+[dependency-groups]
+# Test-specific dependencies shared across workspace members. Listed here so
+# that the type checker (ty) can resolve imports in test files.
+test = [
+    "pytest>=8.0",
+    "pytest-benchmark>=5.1",
+    "pytest-asyncio>=0.23",
+    "pytest-manual-marker>=2.0",
+    "tomli>=2.0",
+    "imageio-ffmpeg>=0.5",
+]
+lint = [
+    "pre-commit>=4.3.0",
+    "ruff==0.12.7",
+    "sphinx>=7.0",
+    "ty>=0.0.39",
+    {include-group = "test"},
+]
+
+# Sphinx toolchain for building docs locally.
+docs = [
+    "pydata-sphinx-theme>=0.18",
+    "sphinx>=7.0",
+    "sphinx-autobuild>=2024.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-design>=0.5",
+    "myst-parser>=4.0",
+]
+
+# CPU-only runtime deps needed by autodoc to import flashdreams on CI.
+# Heavy GPU packages (transformer-engine, pynvml, boto3, mediapy, cv2,
+# torch, torchvision) are mocked via `autodoc_mock_imports` in
+# docs/source/conf.py rather than installed.
+docs-ci = [
+    "einops>=0.7",
+    "ftfy>=6.0",
+    "huggingface-hub>=0.33",
+    "loguru>=0.7",
+    "numpy>=1.24",
+    "safetensors>=0.4",
+    "tqdm>=4.60",
+    "transformers>=5.0,<6",
+]
+dev = [
+    "python-dotenv>=1.2.2",
+]

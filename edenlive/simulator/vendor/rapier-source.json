@@ -1,0 +1,10 @@
+{
+  "name": "@dimforge/rapier3d-compat",
+  "version": "0.21.0",
+  "source": "https://registry.npmjs.org/@dimforge/rapier3d-compat/-/rapier3d-compat-0.21.0.tgz",
+  "upstream": "https://github.com/dimforge/rapier.js",
+  "license": "Apache-2.0",
+  "file": "rapier-0.21.0.js",
+  "original_file": "dist/rapier.mjs",
+  "loading": "dynamic import only when physics is enabled"
+}

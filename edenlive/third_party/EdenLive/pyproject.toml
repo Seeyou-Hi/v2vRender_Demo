@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edenlive"
+version = "0.1.0"
+description = "EdenLive: proxy-guided video world models. Turn coarse 3D previews into photorealistic video."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Vast AI" },
+]
+keywords = [
+  "video-generation",
+  "world-model",
+  "diffusion",
+  "flow-matching",
+  "autoregressive",
+  "sequence-parallel",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "accelerate>=1.0",
+  "diffusers>=0.38",
+  # The Wan pipelines call ftfy.fix_text while encoding prompts and do not
+  # declare it themselves.
+  "ftfy>=6",
+  "huggingface-hub>=0.30",
+  "imageio>=2.30",
+  "imageio-ffmpeg>=0.5",
+  "numpy>=1.24,<3",
+  "pillow>=10",
+  "PyYAML>=6",
+  "safetensors>=0.4",
+  "torch>=2.6",
+  "transformers>=4.50",
+]
+
+[project.optional-dependencies]
+# Manifest-driven inference reads source clips and first frames off disk or object
+# storage: decord decodes video, pandas reads parquet/csv manifests.
+data = [
+  "av>=17",
+  "decord>=0.6",
+  "pandas>=2",
+  "pyarrow>=14",
+]
+all = [
+  "edenlive[data]",
+]
+
+[project.scripts]
+edenlive-infer = "edenlive.scripts.infer:main"
+
+# TODO: add [project.urls] once the project page, repository, and weights are
+# public. Left out rather than filled with placeholders, which would ship as
+# broken links in the installed package metadata.
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["edenlive*"]
+
+[tool.setuptools.package-data]
+edenlive = ["configs/**/*.yaml"]

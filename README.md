@@ -1,8 +1,12 @@
-# Krea 机械臂交互渲染 Demo
+# 双机械臂交互渲染 Demo：Krea / EdenLive
 
 完整的双机械臂浏览器前端与 **Krea 14B＋VACE** 后端。前端持续采集 Depth / RGB 转 Canny 条件，后端四步因果分块渲染并逐帧返回。页面上方播放渲染结果，下方操控仿真。
 
-主分支只保留 Krea；模型权重和 Python 环境需另行准备。前端模型素材、纹理、浏览器依赖、Scope 推理源码、多卡优化及前后端代理均已纳入 Git，不需要再下载其他项目代码或运行前端构建。
+仓库现在包含独立的 [EdenLive 前后端](edenlive/README.md)；其余本页说明仍对应原有 Krea。两个后端使用各自环境与启动入口。模型权重和 Python 环境需另行准备。前端模型素材、纹理、浏览器依赖、Scope 推理源码、多卡优化及前后端代理均已纳入 Git，不需要再下载其他项目代码或运行前端构建。
+
+## EdenLive 单卡实时版本
+
+完整代码、机械臂资产、模型清单、安装和 WebRTC/SSH 访问说明见 [edenlive/README.md](edenlive/README.md)。安装运行使用 `bash edenlive/install.sh`、模型下载校验脚本和 `bash edenlive/start.sh`，不会使用根目录的 Krea 启动器。未完成的官方 LightX2V 优化列在 [edenlive/TODO.md](edenlive/TODO.md)。
 
 ## 目录
 

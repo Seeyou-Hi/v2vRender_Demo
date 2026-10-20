@@ -1,0 +1,26 @@
+/.venv/
+/models/EdenLive/
+/runs/
+/runtime/
+/logs/
+/cache/
+/browser/
+/tools/
+.env
+.env.*
+!/.env.example
+**/__pycache__/
+*.pyc
+*.part
+
+# Parent repository ignores weight/data directories globally. These are code and
+# simulator assets; keep them, while the real model weight directory stays ignored.
+!/models/
+/models/*
+!/models/download-manifest.json
+!/simulator/models/
+!/simulator/models/**
+!/third_party/EdenLive/edenlive/models/
+!/third_party/EdenLive/edenlive/models/**
+!/third_party/EdenLive/edenlive/data/
+!/third_party/EdenLive/edenlive/data/**

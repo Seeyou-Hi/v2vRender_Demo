@@ -1,0 +1,11 @@
+{
+  "edenlive_upstream": "https://github.com/VAST-AI-Research/EdenLive",
+  "edenlive_base_commit": "f9f15fd1810fc274f167bc2ff8784b2645170286",
+  "snapshot": "C3 robotarm_native_20261020, including deployed local changes",
+  "model_repo": "VAST-AI/EdenLive",
+  "model_revision": "de40b28f3f6eb6a0f12bb3d3967ca35578273713",
+  "torch": "2.11.0+cu128",
+  "torchvision": "0.26.0+cu128",
+  "lightx2v_candidate_commit": "d2d7424219abdc01b5722e7768e584bc96a5b418",
+  "lightx2v_integrated": false
+}

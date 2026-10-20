@@ -1,0 +1,3 @@
+mediabunny 1.61.4, npm official package https://registry.npmjs.org/mediabunny/-/mediabunny-1.61.4.tgz
+Project https://github.com/Vanilagy/mediabunny
+License: MPL-2.0 (see mediabunny-LICENSE.txt). Unmodified browser bundle.
